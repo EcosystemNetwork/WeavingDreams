@@ -161,8 +161,8 @@ export default function DimensionsPage() {
               <ArrowLeft className="w-5 h-5" />
             </Button>
           </Link>
-          <div>
-            <h1 className="font-black text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/50">
+          <div className="py-1">
+            <h1 className="font-black text-2xl tracking-tight leading-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/50">
               DIMENSIONS
             </h1>
             <p className="text-xs text-muted-foreground">Narrative Funding</p>
