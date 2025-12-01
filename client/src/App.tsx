@@ -12,11 +12,19 @@ import NarrativeStudioPage from "@/pages/NarrativeStudioPage";
 import EnvironmentCreatorPage from "@/pages/EnvironmentCreatorPage";
 import WikiPage from "@/pages/WikiPage";
 import DimensionsPage from "@/pages/DimensionsPage";
+import MediaHubPage from "@/pages/MediaHubPage";
+import FilmsPage from "@/pages/FilmsPage";
+import GamesPage from "@/pages/GamesPage";
+import ShortsPage from "@/pages/ShortsPage";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={LandingPage} />
+      <Route path="/media" component={MediaHubPage} />
+      <Route path="/films" component={FilmsPage} />
+      <Route path="/games" component={GamesPage} />
+      <Route path="/shorts" component={ShortsPage} />
       <Route path="/dashboard" component={DashboardPage} />
       <Route path="/narrative-studio" component={NarrativeStudioPage} />
       <Route path="/editor" component={EditorPage} />
