@@ -26,7 +26,7 @@ export default function LandingPage() {
             <span className="text-xs font-medium text-primary tracking-wider">POWERED BY KIE AI</span>
           </div>
           
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-white via-white/90 to-white/50 drop-shadow-2xl">
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-tight bg-clip-text text-transparent bg-gradient-to-br from-white via-white/90 to-white/50 drop-shadow-2xl py-2">
             Weaving Dreams
           </h1>
           
