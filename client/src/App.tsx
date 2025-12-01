@@ -11,6 +11,7 @@ import DashboardPage from "@/pages/DashboardPage";
 import NarrativeStudioPage from "@/pages/NarrativeStudioPage";
 import EnvironmentCreatorPage from "@/pages/EnvironmentCreatorPage";
 import WikiPage from "@/pages/WikiPage";
+import DimensionsPage from "@/pages/DimensionsPage";
 
 function Router() {
   return (
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/characters" component={CharacterGeneratorPage} />
       <Route path="/environment-creator" component={EnvironmentCreatorPage} />
       <Route path="/wiki" component={WikiPage} />
+      <Route path="/dimensions" component={DimensionsPage} />
       <Route component={NotFound} />
     </Switch>
   );

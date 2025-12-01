@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
-import { ArrowRight, BookOpen, Cpu, Network } from 'lucide-react';
+import { ArrowRight, BookOpen, Cpu, Network, Sparkles } from 'lucide-react';
 import generatedImage from '@assets/generated_images/dark_abstract_network_of_glowing_nodes_and_lines.png';
 
 export default function LandingPage() {
@@ -40,6 +40,12 @@ export default function LandingPage() {
               <Button size="lg" className="h-14 px-8 text-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_30px_rgba(124,58,237,0.3)] transition-all hover:scale-105">
                 Start Creating
                 <ArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </Link>
+            <Link href="/dimensions">
+              <Button size="lg" variant="outline" className="h-14 px-8 text-lg backdrop-blur-sm bg-white/5 border-white/10 hover:bg-white/10">
+                <Sparkles className="mr-2 w-5 h-5" />
+                Dimensions Fund
               </Button>
             </Link>
           </div>
