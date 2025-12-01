@@ -42,11 +42,6 @@ export default function LandingPage() {
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
-            <Link href="/characters">
-              <Button variant="outline" size="lg" className="h-14 px-8 text-lg backdrop-blur-sm bg-white/5 border-white/10 hover:bg-white/10">
-                Character Generator
-              </Button>
-            </Link>
           </div>
         </div>
       </div>
