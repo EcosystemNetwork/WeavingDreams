@@ -35,7 +35,7 @@ export default function LandingPage() {
             Visualize branching paths, generate plot twists, and weave your masterpiece.
           </p>
           
-          <div className="flex items-center justify-center gap-4 mt-8">
+          <div className="flex items-center justify-center gap-4 mt-8 mb-32">
             <Link href="/editor">
               <Button size="lg" className="h-14 px-8 text-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_30px_rgba(124,58,237,0.3)] transition-all hover:scale-105">
                 Start Creating
