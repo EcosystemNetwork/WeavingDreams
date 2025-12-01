@@ -1,4 +1,4 @@
-import { useCallback, useState, useRef } from 'react';
+import { useCallback, useState, useRef, useMemo } from 'react';
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -9,16 +9,11 @@ import ReactFlow, {
   Connection,
   Edge,
   Node,
-  ReactFlowProvider,
   Panel
 } from 'reactflow';
 import NarrativeNode from './NarrativeNode';
 import { Button } from '@/components/ui/button';
 import { Plus, Save, Download } from 'lucide-react';
-
-const nodeTypes = {
-  narrative: NarrativeNode,
-};
 
 const initialNodes: Node[] = [
   { 
@@ -36,9 +31,12 @@ const initialNodes: Node[] = [
 
 interface FlowEditorProps {
   onNodeSelect: (node: Node | null) => void;
+  onNodeUpdate?: (id: string, data: any) => void;
+  onNodeDelete?: (id: string) => void;
 }
 
-export default function FlowEditor({ onNodeSelect }: FlowEditorProps) {
+export default function FlowEditor({ onNodeSelect, onNodeUpdate, onNodeDelete }: FlowEditorProps) {
+  const nodeTypes = useMemo(() => ({ narrative: NarrativeNode }), []);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const reactFlowWrapper = useRef<HTMLDivElement>(null);

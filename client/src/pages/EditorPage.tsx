@@ -1,16 +1,17 @@
 import { useState, useCallback } from 'react';
-import { ReactFlowProvider, useReactFlow } from 'reactflow';
+import { ReactFlowProvider } from 'reactflow';
 import FlowEditor from '@/components/editor/FlowEditor';
 import Sidebar from '@/components/editor/Sidebar';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'wouter';
+import { useToast } from '@/hooks/use-toast';
 
 // Wrapper component to handle Flow state updates from Sidebar
 function EditorContent() {
   const [selectedNode, setSelectedNode] = useState<any>(null);
-  const { setNodes } = useReactFlow();
+  const [nodes, setNodes] = useState<any[]>([]);
 
   const handleUpdateNode = useCallback((id: string, data: any) => {
     setNodes((nds) =>
@@ -59,7 +60,11 @@ function EditorContent() {
       <div className="flex-1 overflow-hidden">
         <ResizablePanelGroup direction="horizontal">
           <ResizablePanel defaultSize={75} minSize={50}>
-             <FlowEditor onNodeSelect={setSelectedNode} />
+             <FlowEditor 
+              onNodeSelect={setSelectedNode} 
+              onNodeUpdate={handleUpdateNode}
+              onNodeDelete={handleDeleteNode}
+            />
           </ResizablePanel>
           
           <ResizableHandle withHandle />
