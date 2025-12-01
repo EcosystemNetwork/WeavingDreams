@@ -35,16 +35,18 @@ export default function LandingPage() {
             Visualize branching paths, generate plot twists, and weave your masterpiece.
           </p>
           
-          <div className="flex items-center justify-center gap-4 mt-8 mb-32">
+          <div className="flex items-center justify-center gap-4 mt-8 mb-32 flex-wrap">
             <Link href="/editor">
               <Button size="lg" className="h-14 px-8 text-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_30px_rgba(124,58,237,0.3)] transition-all hover:scale-105">
                 Start Creating
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="h-14 px-8 text-lg backdrop-blur-sm bg-white/5 border-white/10 hover:bg-white/10">
-              Documentation
-            </Button>
+            <Link href="/characters">
+              <Button variant="outline" size="lg" className="h-14 px-8 text-lg backdrop-blur-sm bg-white/5 border-white/10 hover:bg-white/10">
+                Character Generator
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
