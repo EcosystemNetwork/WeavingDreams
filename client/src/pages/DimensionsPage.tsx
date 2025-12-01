@@ -1,62 +1,97 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, Plus, Sparkles, TrendingUp, Users, DollarSign } from 'lucide-react';
+import { ArrowLeft, Plus, TrendingUp, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { Link } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 
-interface Dimension {
+interface Narrative {
   id: string;
   name: string;
+  creator: string;
   description: string;
   fundingGoal: number;
   raised: number;
-  narrativeType: 'film' | 'game';
-  creator: string;
   progress: number;
+  narrativeType: 'film' | 'game';
+  change24h: number;
 }
 
 export default function DimensionsPage() {
-  const [dimensions, setDimensions] = useState<Dimension[]>([
+  const [narratives, setNarratives] = useState<Narrative[]>([
     {
       id: '1',
       name: 'Lost in Time',
-      description: 'A sci-fi thriller about temporal paradoxes and alternate realities',
+      creator: 'Alex Rivera',
+      description: 'A sci-fi thriller about temporal paradoxes',
       fundingGoal: 50000,
       raised: 32500,
+      progress: 65,
       narrativeType: 'film',
-      creator: 'Alex Rivera',
-      progress: 65
+      change24h: 12.5
     },
     {
       id: '2',
       name: 'Realm\'s Edge',
-      description: 'Open-world fantasy RPG with branching quests and dynamic endings',
+      creator: 'Jordan Chen',
+      description: 'Open-world fantasy RPG with branching quests',
       fundingGoal: 75000,
       raised: 18750,
+      progress: 25,
       narrativeType: 'game',
-      creator: 'Jordan Chen',
-      progress: 25
+      change24h: -3.2
     },
     {
       id: '3',
       name: 'Echoes of Tomorrow',
-      description: 'Interactive drama exploring AI consciousness and humanity',
+      creator: 'Sam Taylor',
+      description: 'Interactive drama exploring AI consciousness',
       fundingGoal: 40000,
       raised: 39500,
+      progress: 99,
       narrativeType: 'game',
-      creator: 'Sam Taylor',
-      progress: 99
+      change24h: 45.8
+    },
+    {
+      id: '4',
+      name: 'The Divide',
+      creator: 'Maya Patel',
+      description: 'Political thriller with multiple endings',
+      fundingGoal: 60000,
+      raised: 8500,
+      progress: 14,
+      narrativeType: 'film',
+      change24h: 2.1
+    },
+    {
+      id: '5',
+      name: 'Neon Shadows',
+      creator: 'Chris Wong',
+      description: 'Cyberpunk adventure with choice-driven gameplay',
+      fundingGoal: 85000,
+      raised: 45200,
+      progress: 53,
+      narrativeType: 'game',
+      change24h: 8.3
+    },
+    {
+      id: '6',
+      name: 'Forgotten Light',
+      creator: 'Elena Rossi',
+      description: 'Historical drama spanning three decades',
+      fundingGoal: 55000,
+      raised: 51800,
+      progress: 94,
+      narrativeType: 'film',
+      change24h: 28.5
     }
   ]);
 
   const [isCreating, setIsCreating] = useState(false);
-  const [newDimension, setNewDimension] = useState({
+  const [newNarrative, setNewNarrative] = useState({
     name: '',
     description: '',
     fundingGoal: 50000,
@@ -64,8 +99,8 @@ export default function DimensionsPage() {
   });
   const { toast } = useToast();
 
-  const handleCreateDimension = () => {
-    if (!newDimension.name || !newDimension.description) {
+  const handleCreateNarrative = () => {
+    if (!newNarrative.name || !newNarrative.description) {
       toast({
         title: "Missing information",
         description: "Please fill in all fields",
@@ -74,126 +109,120 @@ export default function DimensionsPage() {
       return;
     }
 
-    const dimension: Dimension = {
+    const narrative: Narrative = {
       id: Math.random().toString(36).substr(2, 9),
-      name: newDimension.name,
-      description: newDimension.description,
-      fundingGoal: newDimension.fundingGoal,
-      raised: 0,
-      narrativeType: newDimension.narrativeType,
+      name: newNarrative.name,
       creator: 'You',
-      progress: 0
+      description: newNarrative.description,
+      fundingGoal: newNarrative.fundingGoal,
+      raised: 0,
+      progress: 0,
+      narrativeType: newNarrative.narrativeType,
+      change24h: 0
     };
 
-    setDimensions([dimension, ...dimensions]);
-    setNewDimension({ name: '', description: '', fundingGoal: 50000, narrativeType: 'film' });
+    setNarratives([narrative, ...narratives]);
+    setNewNarrative({ name: '', description: '', fundingGoal: 50000, narrativeType: 'film' });
     setIsCreating(false);
 
     toast({
-      title: "Dimension created",
-      description: `${newDimension.name} is now live for funding!`,
+      title: "Narrative launched",
+      description: `${newNarrative.name} is now live!`,
     });
   };
 
   const handleInvest = (id: string, amount: number) => {
-    setDimensions(dimensions.map(d => {
-      if (d.id === id) {
-        const newRaised = d.raised + amount;
-        const newProgress = Math.min(Math.round((newRaised / d.fundingGoal) * 100), 100);
-        return { ...d, raised: newRaised, progress: newProgress };
+    setNarratives(narratives.map(n => {
+      if (n.id === id) {
+        const newRaised = n.raised + amount;
+        const newProgress = Math.min(Math.round((newRaised / n.fundingGoal) * 100), 100);
+        return { ...n, raised: newRaised, progress: newProgress };
       }
-      return d;
+      return n;
     }));
 
-    const dim = dimensions.find(d => d.id === id);
+    const nar = narratives.find(n => n.id === id);
     toast({
       title: "Investment received",
-      description: `$${amount} contributed to ${dim?.name}`,
+      description: `$${amount} contributed to ${nar?.name}`,
     });
   };
 
-  const totalRaised = dimensions.reduce((sum, d) => sum + d.raised, 0);
-  const averageProgress = Math.round(dimensions.reduce((sum, d) => sum + d.progress, 0) / dimensions.length);
+  const totalRaised = narratives.reduce((sum, n) => sum + n.raised, 0);
+  const sortedNarratives = [...narratives].sort((a, b) => b.raised - a.raised);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Header */}
-      <header className="h-14 border-b border-border bg-card/50 backdrop-blur-sm px-4 flex items-center justify-between">
+      <header className="h-16 border-b border-border/50 bg-gradient-to-r from-primary/10 via-background to-background backdrop-blur-sm px-6 flex items-center justify-between sticky top-0 z-50">
         <div className="flex items-center gap-3">
           <Link href="/">
             <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary">
               <ArrowLeft className="w-5 h-5" />
             </Button>
           </Link>
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            <h1 className="font-bold text-sm tracking-wide">Dimensions Fund</h1>
+          <div>
+            <h1 className="font-black text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/50">
+              DIMENSIONS
+            </h1>
+            <p className="text-xs text-muted-foreground">Narrative Funding</p>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground">Fuel narrative creation</p>
+        <Button onClick={() => setIsCreating(!isCreating)} className="h-10">
+          <Plus className="w-4 h-4 mr-2" />
+          Launch Narrative
+        </Button>
       </header>
 
-      <div className="flex-1 overflow-auto">
-        {/* Stats Bar */}
-        <div className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10 px-6 py-4">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex gap-8">
-              <div>
-                <p className="text-xs text-muted-foreground">Total Funded</p>
-                <p className="text-2xl font-bold text-primary">${(totalRaised / 1000).toFixed(1)}K</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Active Dimensions</p>
-                <p className="text-2xl font-bold text-primary">{dimensions.length}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Avg. Progress</p>
-                <p className="text-2xl font-bold text-primary">{averageProgress}%</p>
-              </div>
-            </div>
-            <Button onClick={() => setIsCreating(!isCreating)} className="h-10">
-              <Plus className="w-4 h-4 mr-2" />
-              Create Dimension
-            </Button>
+      {/* Stats */}
+      <div className="border-b border-border/30 bg-card/30 backdrop-blur-sm px-6 py-4">
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <div>
+            <p className="text-xs text-muted-foreground mb-1">Total Funded</p>
+            <p className="text-3xl font-black text-primary">${(totalRaised / 1000000).toFixed(2)}M</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground mb-1">Active Narratives</p>
+            <p className="text-3xl font-black">{narratives.length}</p>
           </div>
         </div>
+      </div>
 
-        <div className="max-w-7xl mx-auto p-6 space-y-6">
-          {/* Create Dimension Form */}
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-7xl mx-auto p-6">
+          {/* Create Narrative Form */}
           {isCreating && (
-            <Card className="border-primary/30 bg-primary/5">
-              <CardHeader>
-                <CardTitle>Launch Your Dimension</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <div className="mb-8 p-6 rounded-2xl border border-primary/30 bg-primary/5">
+              <h2 className="text-lg font-bold mb-4">Launch Your Narrative</h2>
+              <div className="space-y-4">
                 <div>
-                  <Label>Project Name</Label>
+                  <Label>Title</Label>
                   <Input
-                    value={newDimension.name}
-                    onChange={(e) => setNewDimension({ ...newDimension, name: e.target.value })}
-                    placeholder="Enter narrative title"
-                    className="mt-2 bg-background"
+                    value={newNarrative.name}
+                    onChange={(e) => setNewNarrative({ ...newNarrative, name: e.target.value })}
+                    placeholder="Narrative title"
+                    className="mt-2 bg-background border-white/10 focus:border-primary"
                   />
                 </div>
 
                 <div>
                   <Label>Description</Label>
                   <Textarea
-                    value={newDimension.description}
-                    onChange={(e) => setNewDimension({ ...newDimension, description: e.target.value })}
-                    placeholder="What's your story about?"
-                    className="min-h-[100px] font-serif bg-background resize-y mt-2"
+                    value={newNarrative.description}
+                    onChange={(e) => setNewNarrative({ ...newNarrative, description: e.target.value })}
+                    placeholder="What's your story?"
+                    className="min-h-[80px] font-serif bg-background border-white/10 focus:border-primary resize-none mt-2"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label>Funding Goal ($)</Label>
+                    <Label>Funding Goal</Label>
                     <Input
                       type="number"
-                      value={newDimension.fundingGoal}
-                      onChange={(e) => setNewDimension({ ...newDimension, fundingGoal: parseInt(e.target.value) })}
-                      className="mt-2 bg-background"
+                      value={newNarrative.fundingGoal}
+                      onChange={(e) => setNewNarrative({ ...newNarrative, fundingGoal: parseInt(e.target.value) })}
+                      className="mt-2 bg-background border-white/10 focus:border-primary"
                     />
                   </div>
                   <div>
@@ -202,84 +231,103 @@ export default function DimensionsPage() {
                       {(['film', 'game'] as const).map(type => (
                         <Button
                           key={type}
-                          variant={newDimension.narrativeType === type ? 'default' : 'outline'}
+                          variant={newNarrative.narrativeType === type ? 'default' : 'outline'}
                           size="sm"
-                          onClick={() => setNewDimension({ ...newDimension, narrativeType: type })}
+                          onClick={() => setNewNarrative({ ...newNarrative, narrativeType: type })}
                           className="flex-1 capitalize"
                         >
-                          {type}
+                          {type === 'film' ? '🎬' : '🎮'}
                         </Button>
                       ))}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex gap-3 pt-4">
-                  <Button onClick={handleCreateDimension} className="flex-1">
-                    Launch Dimension
+                <div className="flex gap-3 pt-2">
+                  <Button onClick={handleCreateNarrative} className="flex-1">
+                    Launch
                   </Button>
                   <Button onClick={() => setIsCreating(false)} variant="outline" className="flex-1">
                     Cancel
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
-          {/* Dimensions Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {dimensions.map((dimension) => (
-              <Card key={dimension.id} className="border-white/5 hover:border-primary/30 transition-all overflow-hidden group">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between mb-2">
-                    <CardTitle className="text-base">{dimension.name}</CardTitle>
-                    <Badge variant="outline" className="text-xs capitalize">
-                      {dimension.narrativeType === 'film' ? '🎬' : '🎮'} {dimension.narrativeType}
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground">by {dimension.creator}</p>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground font-serif line-clamp-2">{dimension.description}</p>
-
-                  {/* Progress Bar */}
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-medium">${(dimension.raised / 1000).toFixed(1)}K raised</span>
-                      <span className="text-xs text-muted-foreground">{dimension.progress}%</span>
+          {/* Narratives Table/Rows */}
+          <div className="space-y-2">
+            {sortedNarratives.map((narrative, index) => (
+              <div
+                key={narrative.id}
+                className="group border border-white/5 rounded-xl p-4 bg-card/50 hover:bg-card/80 hover:border-primary/30 transition-all"
+              >
+                <div className="flex items-center justify-between">
+                  {/* Left: Rank & Info */}
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="text-right w-8">
+                      <p className="text-sm font-bold text-muted-foreground">#{index + 1}</p>
                     </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-bold text-base truncate">{narrative.name}</h3>
+                        <Badge variant="outline" className="text-xs flex-shrink-0">
+                          {narrative.narrativeType === 'film' ? '🎬 Film' : '🎮 Game'}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground truncate">{narrative.creator} • {narrative.description}</p>
+                    </div>
+                  </div>
+
+                  {/* Center: Progress */}
+                  <div className="flex-1 mx-6 hidden md:block">
                     <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-primary to-primary/50 transition-all duration-500"
-                        style={{ width: `${dimension.progress}%` }}
+                        className="h-full bg-gradient-to-r from-primary to-primary/50 transition-all"
+                        style={{ width: `${narrative.progress}%` }}
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">Goal: ${(dimension.fundingGoal / 1000).toFixed(0)}K</p>
-                  </div>
-
-                  {/* Investment Options */}
-                  <div className="grid grid-cols-3 gap-2">
-                    {[100, 500, 1000].map(amount => (
-                      <Button
-                        key={amount}
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => handleInvest(dimension.id, amount)}
-                        className="text-xs h-8"
-                      >
-                        ${amount}
-                      </Button>
-                    ))}
-                  </div>
-
-                  {dimension.progress === 100 && (
-                    <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 text-center">
-                      <p className="text-xs font-semibold text-primary">✓ Funding Complete</p>
+                    <div className="flex justify-between mt-1">
+                      <span className="text-xs text-muted-foreground">${(narrative.raised / 1000).toFixed(0)}K</span>
+                      <span className="text-xs text-muted-foreground">{narrative.progress}%</span>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
+                  </div>
+
+                  {/* Right: Stats & Actions */}
+                  <div className="flex items-center gap-4 flex-shrink-0">
+                    {/* 24h Change */}
+                    <div className="w-16 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        {narrative.change24h >= 0 ? (
+                          <ArrowUpRight className="w-4 h-4 text-green-500" />
+                        ) : (
+                          <ArrowDownRight className="w-4 h-4 text-red-500" />
+                        )}
+                        <span className={narrative.change24h >= 0 ? 'text-green-500' : 'text-red-500'}>
+                          {Math.abs(narrative.change24h).toFixed(1)}%
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">24h</p>
+                    </div>
+
+                    {/* Investment Buttons */}
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {[100, 500, 1000].map(amount => (
+                        <Button
+                          key={amount}
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => handleInvest(narrative.id, amount)}
+                          className="text-xs h-8 px-2"
+                        >
+                          ${amount}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>

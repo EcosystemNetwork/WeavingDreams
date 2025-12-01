@@ -45,7 +45,7 @@ export default function LandingPage() {
             <Link href="/dimensions">
               <Button size="lg" variant="outline" className="h-14 px-8 text-lg backdrop-blur-sm bg-white/5 border-white/10 hover:bg-white/10">
                 <Sparkles className="mr-2 w-5 h-5" />
-                Dimensions Fund
+                Dimensions
               </Button>
             </Link>
           </div>
