@@ -3,7 +3,7 @@ import { useLocation } from 'wouter';
 import { ReactFlowProvider } from 'reactflow';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Plus, Save, BookOpen, Users, MapPin } from 'lucide-react';
+import { ArrowLeft, Plus, Save, BookOpen, Users, MapPin, Box } from 'lucide-react';
 import { Link } from 'wouter';
 import FlowEditor from '@/components/editor/FlowEditor';
 import Sidebar from '@/components/editor/Sidebar';
@@ -80,6 +80,10 @@ function NarrativeStudioContent() {
               <MapPin className="w-4 h-4 mr-2" />
               Environment
             </TabsTrigger>
+            <TabsTrigger value="props" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary">
+              <Box className="w-4 h-4 mr-2" />
+              Props
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -124,6 +128,17 @@ function NarrativeStudioContent() {
               <Button size="lg" className="h-12 px-8">
                 <MapPin className="w-5 h-5 mr-2" />
                 Open Environment Creator
+              </Button>
+            </Link>
+          </div>
+        )}
+
+        {activeTab === 'props' && (
+          <div className="h-full flex items-center justify-center">
+            <Link href="/props">
+              <Button size="lg" className="h-12 px-8">
+                <Box className="w-5 h-5 mr-2" />
+                Open Prop Creator
               </Button>
             </Link>
           </div>

@@ -10,9 +10,20 @@ export interface WikiEnvironment {
   createdAt: number;
 }
 
+export interface WikiProp {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  appearance: string;
+  significance: string;
+  createdAt: number;
+}
+
 export interface WikiData {
   characters: Character[];
   environments: WikiEnvironment[];
+  props: WikiProp[];
 }
 
 const WIKI_STORAGE_KEY = 'narrative_weaver_wiki';
@@ -24,7 +35,7 @@ export const wikiStore = {
     if (existing) {
       return JSON.parse(existing);
     }
-    const empty: WikiData = { characters: [], environments: [] };
+    const empty: WikiData = { characters: [], environments: [], props: [] };
     localStorage.setItem(WIKI_STORAGE_KEY, JSON.stringify(empty));
     return empty;
   },
@@ -32,7 +43,7 @@ export const wikiStore = {
   // Get all wiki data
   getAll: (): WikiData => {
     const data = localStorage.getItem(WIKI_STORAGE_KEY);
-    return data ? JSON.parse(data) : { characters: [], environments: [] };
+    return data ? JSON.parse(data) : { characters: [], environments: [], props: [] };
   },
 
   // Add character to wiki
@@ -78,6 +89,29 @@ export const wikiStore = {
   deleteEnvironment: (id: string): void => {
     const wiki = wikiStore.getAll();
     wiki.environments = wiki.environments.filter(e => e.id !== id);
+    localStorage.setItem(WIKI_STORAGE_KEY, JSON.stringify(wiki));
+  },
+
+  // Add prop to wiki
+  addProp: (prop: WikiProp): void => {
+    const wiki = wikiStore.getAll();
+    // Check if prop already exists
+    const exists = wiki.props.some(p => p.name === prop.name);
+    if (!exists) {
+      wiki.props.push(prop);
+      localStorage.setItem(WIKI_STORAGE_KEY, JSON.stringify(wiki));
+    }
+  },
+
+  // Get all props from wiki
+  getProps: (): WikiProp[] => {
+    return wikiStore.getAll().props;
+  },
+
+  // Delete prop from wiki
+  deleteProp: (id: string): void => {
+    const wiki = wikiStore.getAll();
+    wiki.props = wiki.props.filter(p => p.id !== id);
     localStorage.setItem(WIKI_STORAGE_KEY, JSON.stringify(wiki));
   },
 

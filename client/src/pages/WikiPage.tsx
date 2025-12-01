@@ -4,24 +4,28 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { ArrowLeft, Users, MapPin, Trash2, Copy, BookOpen } from 'lucide-react';
+import { ArrowLeft, Users, MapPin, Trash2, Copy, BookOpen, Box } from 'lucide-react';
 import { Link } from 'wouter';
-import { wikiStore, WikiEnvironment } from '@/lib/wikiStore';
+import { wikiStore, WikiEnvironment, WikiProp } from '@/lib/wikiStore';
 import { Character } from '@/lib/mockAi';
 import { useToast } from '@/hooks/use-toast';
 
 export default function WikiPage() {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [environments, setEnvironments] = useState<WikiEnvironment[]>([]);
+  const [props, setProps] = useState<WikiProp[]>([]);
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
   const [selectedEnv, setSelectedEnv] = useState<WikiEnvironment | null>(null);
+  const [selectedProp, setSelectedProp] = useState<WikiProp | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
     const chars = wikiStore.getCharacters();
     const envs = wikiStore.getEnvironments();
+    const prps = wikiStore.getProps();
     setCharacters(chars);
     setEnvironments(envs);
+    setProps(prps);
   }, []);
 
   const handleCopyCharacter = (char: Character) => {
@@ -68,6 +72,27 @@ Key Details: ${env.keyDetails}
     toast({ title: "Deleted", description: "Environment removed from wiki." });
   };
 
+  const handleCopyProp = (prop: WikiProp) => {
+    const text = `
+Name: ${prop.name}
+Category: ${prop.category}
+Description: ${prop.description}
+Appearance: ${prop.appearance}
+Significance: ${prop.significance}
+    `.trim();
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copied", description: "Prop copied to clipboard." });
+  };
+
+  const handleDeleteProp = (id: string) => {
+    wikiStore.deleteProp(id);
+    setProps(props.filter(p => p.id !== id));
+    if (selectedProp?.id === id) {
+      setSelectedProp(null);
+    }
+    toast({ title: "Deleted", description: "Prop removed from wiki." });
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Header */}
@@ -84,7 +109,7 @@ Key Details: ${env.keyDetails}
           </div>
         </div>
         <div className="text-xs text-muted-foreground">
-          {characters.length} Characters • {environments.length} Environments
+          {characters.length} Characters • {environments.length} Environments • {props.length} Props
         </div>
       </header>
 
@@ -100,6 +125,10 @@ Key Details: ${env.keyDetails}
               <TabsTrigger value="environments" className="flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
                 Environments
+              </TabsTrigger>
+              <TabsTrigger value="props" className="flex items-center gap-2">
+                <Box className="w-4 h-4" />
+                Props
               </TabsTrigger>
             </TabsList>
 
@@ -275,6 +304,86 @@ Key Details: ${env.keyDetails}
                         </CardHeader>
                         <CardContent>
                           <p className="text-xs text-muted-foreground line-clamp-3 font-serif">{env.description}</p>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="props" className="space-y-6">
+              {selectedProp ? (
+                <div className="space-y-6">
+                  <div className="text-center mb-8">
+                    <h2 className="text-4xl font-bold mb-2">{selectedProp.name}</h2>
+                    <Badge className="bg-primary/20 text-primary border-primary/30">{selectedProp.category}</Badge>
+                  </div>
+
+                  <Card className="border-white/5">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Description</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground font-serif leading-relaxed">{selectedProp.description}</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-white/5">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Appearance & Design</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground font-serif leading-relaxed">{selectedProp.appearance}</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="border-white/5">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm">Narrative Significance</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground font-serif leading-relaxed">{selectedProp.significance}</p>
+                    </CardContent>
+                  </Card>
+
+                  <div className="flex gap-3">
+                    <Button onClick={() => setSelectedProp(null)} variant="outline" className="flex-1">
+                      Back to List
+                    </Button>
+                    <Button onClick={() => handleCopyProp(selectedProp)} variant="secondary" className="flex-1">
+                      <Copy className="w-4 h-4 mr-2" />
+                      Copy
+                    </Button>
+                    <Button 
+                      onClick={() => handleDeleteProp(selectedProp.id)}
+                      variant="outline" 
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {props.length === 0 ? (
+                    <div className="col-span-3 text-center py-12 text-muted-foreground">
+                      <Box className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p>No props in wiki yet. Create one in the Prop Creator!</p>
+                    </div>
+                  ) : (
+                    props.map((prop) => (
+                      <Card
+                        key={prop.id}
+                        className="border-white/5 hover:border-primary/30 transition-all cursor-pointer"
+                        onClick={() => setSelectedProp(prop)}
+                      >
+                        <CardHeader>
+                          <CardTitle className="text-sm">{prop.name}</CardTitle>
+                          <Badge variant="outline" className="w-fit text-xs mt-2">{prop.category}</Badge>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-xs text-muted-foreground line-clamp-3 font-serif">{prop.description}</p>
                         </CardContent>
                       </Card>
                     ))

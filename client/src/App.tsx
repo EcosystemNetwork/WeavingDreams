@@ -10,6 +10,7 @@ import CharacterGeneratorPage from "@/pages/CharacterGeneratorPage";
 import DashboardPage from "@/pages/DashboardPage";
 import NarrativeStudioPage from "@/pages/NarrativeStudioPage";
 import EnvironmentCreatorPage from "@/pages/EnvironmentCreatorPage";
+import PropCreatorPage from "@/pages/PropCreatorPage";
 import WikiPage from "@/pages/WikiPage";
 import DimensionsPage from "@/pages/DimensionsPage";
 import MediaHubPage from "@/pages/MediaHubPage";
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/editor" component={EditorPage} />
       <Route path="/characters" component={CharacterGeneratorPage} />
       <Route path="/environment-creator" component={EnvironmentCreatorPage} />
+      <Route path="/props" component={PropCreatorPage} />
       <Route path="/wiki" component={WikiPage} />
       <Route path="/dimensions" component={DimensionsPage} />
       <Route component={NotFound} />
