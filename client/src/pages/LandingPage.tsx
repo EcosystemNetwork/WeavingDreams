@@ -20,7 +20,7 @@ export default function LandingPage() {
         </div>
 
         {/* Content */}
-        <div className="relative z-10 container px-4 text-center space-y-8">
+        <div className="relative z-10 container px-4 text-center space-y-8 pt-20">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm mb-4">
             <Cpu className="w-4 h-4 text-primary" />
             <span className="text-xs font-medium text-primary tracking-wider">POWERED BY KIE AI</span>
