@@ -7,13 +7,19 @@ import NotFound from "@/pages/not-found";
 import EditorPage from "@/pages/EditorPage";
 import LandingPage from "@/pages/LandingPage";
 import CharacterGeneratorPage from "@/pages/CharacterGeneratorPage";
+import DashboardPage from "@/pages/DashboardPage";
+import NarrativeStudioPage from "@/pages/NarrativeStudioPage";
+import EnvironmentCreatorPage from "@/pages/EnvironmentCreatorPage";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={LandingPage} />
+      <Route path="/dashboard" component={DashboardPage} />
+      <Route path="/narrative-studio" component={NarrativeStudioPage} />
       <Route path="/editor" component={EditorPage} />
       <Route path="/characters" component={CharacterGeneratorPage} />
+      <Route path="/environment-creator" component={EnvironmentCreatorPage} />
       <Route component={NotFound} />
     </Switch>
   );
