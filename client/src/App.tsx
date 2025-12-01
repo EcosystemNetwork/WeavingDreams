@@ -10,6 +10,7 @@ import CharacterGeneratorPage from "@/pages/CharacterGeneratorPage";
 import DashboardPage from "@/pages/DashboardPage";
 import NarrativeStudioPage from "@/pages/NarrativeStudioPage";
 import EnvironmentCreatorPage from "@/pages/EnvironmentCreatorPage";
+import WikiPage from "@/pages/WikiPage";
 
 function Router() {
   return (
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/editor" component={EditorPage} />
       <Route path="/characters" component={CharacterGeneratorPage} />
       <Route path="/environment-creator" component={EnvironmentCreatorPage} />
+      <Route path="/wiki" component={WikiPage} />
       <Route component={NotFound} />
     </Switch>
   );

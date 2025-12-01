@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Film, Gamepad2, Plus } from 'lucide-react';
+import { ArrowLeft, Film, Gamepad2, Plus, BookOpen } from 'lucide-react';
 import { Link } from 'wouter';
 
 export default function DashboardPage() {
@@ -17,6 +17,12 @@ export default function DashboardPage() {
           </Link>
           <h1 className="font-bold text-sm tracking-wide">Dashboard</h1>
         </div>
+        <Link href="/wiki">
+          <Button variant="ghost" size="sm" className="hover:bg-primary/10 hover:text-primary">
+            <BookOpen className="w-4 h-4 mr-2" />
+            Story Wiki
+          </Button>
+        </Link>
       </header>
 
       <div className="flex-1 overflow-auto p-8">

@@ -6,18 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, Plus, MapPin, Sparkles, Trash2, Save } from 'lucide-react';
+import { ArrowLeft, Plus, MapPin, Sparkles, Trash2, Save, Copy, BookOpen } from 'lucide-react';
 import { Link } from 'wouter';
+import { wikiStore, WikiEnvironment } from '@/lib/wikiStore';
 import { useToast } from '@/hooks/use-toast';
 
-interface Environment {
-  id: string;
-  name: string;
-  type: string;
-  description: string;
-  atmosphere: string;
-  keyDetails: string;
-}
+interface Environment extends WikiEnvironment {}
 
 const ENVIRONMENT_TYPES = [
   'Urban',
@@ -45,7 +39,8 @@ export default function EnvironmentCreatorPage() {
       type: 'Urban',
       description: '',
       atmosphere: '',
-      keyDetails: ''
+      keyDetails: '',
+      createdAt: Date.now()
     };
     setEnvironments([newEnv, ...environments]);
     setSelectedEnv(newEnv);
@@ -71,9 +66,14 @@ export default function EnvironmentCreatorPage() {
   };
 
   const handleSave = () => {
+    if (!selectedEnv) return;
+    wikiStore.addEnvironment({
+      ...selectedEnv,
+      createdAt: Date.now()
+    });
     toast({
       title: "Environment saved",
-      description: `${selectedEnv?.name} has been saved.`,
+      description: `${selectedEnv.name} has been saved to your Story Wiki.`,
     });
     setIsCreating(false);
   };

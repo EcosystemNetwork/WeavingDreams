@@ -4,9 +4,10 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, Sparkles, RotateCw, Copy } from 'lucide-react';
+import { ArrowLeft, Sparkles, RotateCw, Copy, BookOpen, Save } from 'lucide-react';
 import { Link } from 'wouter';
 import { mockKieAi, Character } from '@/lib/mockAi';
+import { wikiStore } from '@/lib/wikiStore';
 import { useToast } from '@/hooks/use-toast';
 
 export default function CharacterGeneratorPage() {
@@ -51,6 +52,15 @@ Trait: ${character.trait}
     toast({
       title: "Copied",
       description: "Character profile copied to clipboard.",
+    });
+  };
+
+  const handleSaveToWiki = () => {
+    if (!character) return;
+    wikiStore.addCharacter(character);
+    toast({
+      title: "Saved to Wiki",
+      description: `${character.name} has been added to your Story Wiki.`,
     });
   };
 
@@ -141,10 +151,18 @@ Trait: ${character.trait}
                 <Button 
                   variant="secondary" 
                   className="flex-1"
+                  onClick={handleSaveToWiki}
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Save to Wiki
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  className="flex-1"
                   onClick={handleCopyToClipboard}
                 >
                   <Copy className="w-4 h-4 mr-2" />
-                  Copy Profile
+                  Copy
                 </Button>
               </div>
             </div>
