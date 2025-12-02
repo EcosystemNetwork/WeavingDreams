@@ -12,6 +12,7 @@ import NarrativeStudioPage from "@/pages/NarrativeStudioPage";
 import EnvironmentCreatorPage from "@/pages/EnvironmentCreatorPage";
 import PropCreatorPage from "@/pages/PropCreatorPage";
 import WikiPage from "@/pages/WikiPage";
+import HistoryPage from "@/pages/HistoryPage";
 import DimensionsPage from "@/pages/DimensionsPage";
 import MediaHubPage from "@/pages/MediaHubPage";
 import FilmsPage from "@/pages/FilmsPage";
@@ -33,6 +34,7 @@ function Router() {
       <Route path="/environment-creator" component={EnvironmentCreatorPage} />
       <Route path="/props" component={PropCreatorPage} />
       <Route path="/wiki" component={WikiPage} />
+      <Route path="/history" component={HistoryPage} />
       <Route path="/dimensions" component={DimensionsPage} />
       <Route component={NotFound} />
     </Switch>
