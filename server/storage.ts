@@ -289,7 +289,7 @@ export class DatabaseStorage implements IStorage {
       .limit(limit);
   }
 
-  async getLeaderboard(limit = 100): Promise<(CreditAccount & { user?: { firstName: string; lastName: string; email: string } })[]> {
+  async getLeaderboard(limit = 100): Promise<(CreditAccount & { user?: { firstName: string | null; lastName: string | null; email: string | null } })[]> {
     return await db
       .select({
         id: creditAccounts.id,

@@ -8,7 +8,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import type { CreditAccount } from '@shared/schema';
 
 interface LeaderboardEntry extends CreditAccount {
-  user?: { firstName: string; lastName: string; email: string };
+  user?: { firstName: string | null; lastName: string | null; email: string | null };
 }
 
 const getRankBadge = (rank: number) => {
