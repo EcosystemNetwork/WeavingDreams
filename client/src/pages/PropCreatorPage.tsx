@@ -8,10 +8,19 @@ import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ArrowLeft, Plus, Box, Trash2, Save, Copy, BookOpen } from 'lucide-react';
 import { Link } from 'wouter';
-import { wikiStore, WikiProp } from '@/lib/wikiStore';
-import { useToast } from '@/hooks/use-toast';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { toast } from 'sonner';
 
-interface Prop extends WikiProp {}
+interface Prop {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  appearance: string;
+  significance: string;
+  createdAt: number;
+}
 
 const PROP_CATEGORIES = [
   'Weapon',
@@ -30,7 +39,28 @@ export default function PropCreatorPage() {
   const [props, setProps] = useState<Prop[]>([]);
   const [selectedProp, setSelectedProp] = useState<Prop | null>(null);
   const [isCreating, setIsCreating] = useState(false);
-  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const savePropMutation = useMutation({
+    mutationFn: async (prop: Prop) => {
+      const response = await apiRequest('POST', '/api/props', {
+        name: prop.name,
+        category: prop.category,
+        description: prop.description,
+        appearance: prop.appearance,
+        significance: prop.significance,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/props'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/history'] });
+      toast.success('Prop saved to your library');
+    },
+    onError: () => {
+      toast.error('Failed to save prop');
+    },
+  });
 
   const handleCreateNew = () => {
     const newProp: Prop = {
@@ -59,22 +89,12 @@ export default function PropCreatorPage() {
     if (selectedProp?.id === id) {
       setSelectedProp(null);
     }
-    toast({
-      title: "Prop deleted",
-      description: "The prop has been removed.",
-    });
+    toast.success('Prop removed');
   };
 
   const handleSave = () => {
     if (!selectedProp) return;
-    wikiStore.addProp({
-      ...selectedProp,
-      createdAt: Date.now()
-    });
-    toast({
-      title: "Prop saved",
-      description: `${selectedProp.name} has been saved to your Story Wiki.`,
-    });
+    savePropMutation.mutate(selectedProp);
     setIsCreating(false);
   };
 
@@ -87,10 +107,7 @@ Appearance: ${prop.appearance}
 Significance: ${prop.significance}
     `.trim();
     navigator.clipboard.writeText(text);
-    toast({
-      title: "Copied",
-      description: "Prop details copied to clipboard.",
-    });
+    toast.success('Prop details copied to clipboard');
   };
 
   return (
@@ -107,7 +124,7 @@ Significance: ${prop.significance}
         </div>
         <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-[10px] font-medium text-primary">Kie AI Online</span>
+          <span className="text-[10px] font-medium text-primary">AI Online</span>
         </div>
       </header>
 
@@ -174,9 +191,13 @@ Significance: ${prop.significance}
               </div>
 
               <div className="flex gap-3 pt-4">
-                <Button onClick={handleSave} className="flex-1">
+                <Button 
+                  onClick={handleSave} 
+                  className="flex-1"
+                  disabled={savePropMutation.isPending}
+                >
                   <Save className="w-4 h-4 mr-2" />
-                  Save to Wiki
+                  {savePropMutation.isPending ? 'Saving...' : 'Save to Library'}
                 </Button>
                 <Button
                   variant="secondary"

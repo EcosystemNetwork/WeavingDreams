@@ -1,11 +1,22 @@
 import { Button } from '@/components/ui/button';
 import { Link } from 'wouter';
-import { ArrowRight, BookOpen, Cpu, Network, Sparkles } from 'lucide-react';
+import { ArrowRight, BookOpen, Cpu, Network, Sparkles, LogIn } from 'lucide-react';
 import generatedImage from '@assets/generated_images/dark_abstract_network_of_glowing_nodes_and_lines.png';
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
+      {/* Top Bar */}
+      <header className="absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-center">
+        <div className="text-lg font-bold text-white/80">Weaving Dreams</div>
+        <a href="/api/login">
+          <Button variant="outline" className="backdrop-blur-sm bg-white/5 border-white/20 hover:bg-white/10">
+            <LogIn className="w-4 h-4 mr-2" />
+            Sign In
+          </Button>
+        </a>
+      </header>
+
       {/* Hero Section */}
       <div className="relative flex-1 flex flex-col items-center justify-center overflow-hidden">
         
@@ -31,15 +42,15 @@ export default function LandingPage() {
           </p>
           
           <div className="flex items-center justify-center gap-4 mt-8 mb-32 flex-wrap">
-            <Link href="/media">
+            <a href="/api/login">
               <Button size="lg" className="h-14 px-8 text-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_30px_rgba(124,58,237,0.3)] transition-all hover:scale-105">
-                Explore Stories
+                Get Started
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
-            </Link>
-            <Link href="/dashboard">
+            </a>
+            <Link href="/media">
               <Button size="lg" variant="outline" className="h-14 px-8 text-lg backdrop-blur-sm bg-white/5 border-white/10 hover:bg-white/10">
-                Create Narrative
+                Explore Stories
               </Button>
             </Link>
             <Link href="/dimensions">

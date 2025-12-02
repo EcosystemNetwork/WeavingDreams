@@ -1,8 +1,11 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
+import { Toaster as SonnerToaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { useAuth } from "@/hooks/useAuth";
+import { Loader2 } from "lucide-react";
 import NotFound from "@/pages/not-found";
 import EditorPage from "@/pages/EditorPage";
 import LandingPage from "@/pages/LandingPage";
@@ -19,23 +22,74 @@ import FilmsPage from "@/pages/FilmsPage";
 import GamesPage from "@/pages/GamesPage";
 import ShortsPage from "@/pages/ShortsPage";
 
+function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    window.location.href = "/api/login";
+    return null;
+  }
+
+  return <Component />;
+}
+
 function Router() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <Switch>
-      <Route path="/" component={LandingPage} />
+      {/* Public routes */}
+      <Route path="/">
+        {isAuthenticated ? <DashboardPage /> : <LandingPage />}
+      </Route>
       <Route path="/media" component={MediaHubPage} />
       <Route path="/films" component={FilmsPage} />
       <Route path="/games" component={GamesPage} />
       <Route path="/shorts" component={ShortsPage} />
-      <Route path="/dashboard" component={DashboardPage} />
-      <Route path="/narrative-studio" component={NarrativeStudioPage} />
-      <Route path="/editor" component={EditorPage} />
-      <Route path="/characters" component={CharacterGeneratorPage} />
-      <Route path="/environment-creator" component={EnvironmentCreatorPage} />
-      <Route path="/props" component={PropCreatorPage} />
-      <Route path="/wiki" component={WikiPage} />
-      <Route path="/history" component={HistoryPage} />
       <Route path="/dimensions" component={DimensionsPage} />
+
+      {/* Protected routes */}
+      <Route path="/dashboard">
+        <ProtectedRoute component={DashboardPage} />
+      </Route>
+      <Route path="/narrative-studio">
+        <ProtectedRoute component={NarrativeStudioPage} />
+      </Route>
+      <Route path="/editor">
+        <ProtectedRoute component={EditorPage} />
+      </Route>
+      <Route path="/characters">
+        <ProtectedRoute component={CharacterGeneratorPage} />
+      </Route>
+      <Route path="/environment-creator">
+        <ProtectedRoute component={EnvironmentCreatorPage} />
+      </Route>
+      <Route path="/props">
+        <ProtectedRoute component={PropCreatorPage} />
+      </Route>
+      <Route path="/wiki">
+        <ProtectedRoute component={WikiPage} />
+      </Route>
+      <Route path="/history">
+        <ProtectedRoute component={HistoryPage} />
+      </Route>
+
       <Route component={NotFound} />
     </Switch>
   );
@@ -46,6 +100,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
+        <SonnerToaster position="top-right" />
         <Router />
       </TooltipProvider>
     </QueryClientProvider>

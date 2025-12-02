@@ -7,14 +7,38 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ArrowLeft, Sparkles, RotateCw, Copy, BookOpen, Save } from 'lucide-react';
 import { Link } from 'wouter';
 import { mockKieAi, Character } from '@/lib/mockAi';
-import { wikiStore } from '@/lib/wikiStore';
-import { useToast } from '@/hooks/use-toast';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { toast } from 'sonner';
 
 export default function CharacterGeneratorPage() {
   const [character, setCharacter] = useState<Character | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [characters, setCharacters] = useState<Character[]>([]);
-  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const saveCharacterMutation = useMutation({
+    mutationFn: async (char: Character) => {
+      const response = await apiRequest('POST', '/api/characters', {
+        name: char.name,
+        archetype: char.archetype,
+        background: char.background,
+        personality: char.personality,
+        motivation: char.motivation,
+        flaw: char.flaw,
+        trait: char.trait,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/characters'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/history'] });
+      toast.success('Character saved to your library');
+    },
+    onError: () => {
+      toast.error('Failed to save character');
+    },
+  });
 
   const handleGenerate = async () => {
     setIsGenerating(true);
@@ -22,16 +46,9 @@ export default function CharacterGeneratorPage() {
       const newChar = await mockKieAi.generateCharacter();
       setCharacter(newChar);
       setCharacters([newChar, ...characters]);
-      toast({
-        title: "Character Generated",
-        description: `${newChar.name} has been created!`,
-      });
+      toast.success(`${newChar.name} has been created!`);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to generate character.",
-        variant: "destructive"
-      });
+      toast.error('Failed to generate character');
     } finally {
       setIsGenerating(false);
     }
@@ -49,19 +66,12 @@ Flaw: ${character.flaw}
 Trait: ${character.trait}
     `.trim();
     navigator.clipboard.writeText(text);
-    toast({
-      title: "Copied",
-      description: "Character profile copied to clipboard.",
-    });
+    toast.success('Character profile copied to clipboard');
   };
 
   const handleSaveToWiki = () => {
     if (!character) return;
-    wikiStore.addCharacter(character);
-    toast({
-      title: "Saved to Wiki",
-      description: `${character.name} has been added to your Story Wiki.`,
-    });
+    saveCharacterMutation.mutate(character);
   };
 
   return (
@@ -69,7 +79,7 @@ Trait: ${character.trait}
       {/* Header */}
       <header className="h-14 border-b border-border bg-card/50 backdrop-blur-sm px-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/">
+          <Link href="/dashboard">
             <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary">
               <ArrowLeft className="w-5 h-5" />
             </Button>
@@ -78,7 +88,7 @@ Trait: ${character.trait}
         </div>
         <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-[10px] font-medium text-primary">Kie AI Online</span>
+          <span className="text-[10px] font-medium text-primary">AI Online</span>
         </div>
       </header>
 
@@ -152,9 +162,10 @@ Trait: ${character.trait}
                   variant="secondary" 
                   className="flex-1"
                   onClick={handleSaveToWiki}
+                  disabled={saveCharacterMutation.isPending}
                 >
                   <Save className="w-4 h-4 mr-2" />
-                  Save to Wiki
+                  {saveCharacterMutation.isPending ? 'Saving...' : 'Save'}
                 </Button>
                 <Button 
                   variant="secondary" 
@@ -174,7 +185,7 @@ Trait: ${character.trait}
               <div>
                 <h2 className="text-3xl font-bold mb-2">Create Your Character</h2>
                 <p className="text-muted-foreground max-w-sm mx-auto">
-                  Let Kie AI generate a compelling character profile with unique traits, motivations, and backstory.
+                  Let AI generate a compelling character profile with unique traits, motivations, and backstory.
                 </p>
               </div>
               <Button 

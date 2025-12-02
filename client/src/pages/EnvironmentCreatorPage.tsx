@@ -8,10 +8,19 @@ import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ArrowLeft, Plus, MapPin, Sparkles, Trash2, Save, Copy, BookOpen } from 'lucide-react';
 import { Link } from 'wouter';
-import { wikiStore, WikiEnvironment } from '@/lib/wikiStore';
-import { useToast } from '@/hooks/use-toast';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
+import { toast } from 'sonner';
 
-interface Environment extends WikiEnvironment {}
+interface Environment {
+  id: string;
+  name: string;
+  type: string;
+  description: string;
+  atmosphere: string;
+  keyDetails: string;
+  createdAt: number;
+}
 
 const ENVIRONMENT_TYPES = [
   'Urban',
@@ -30,7 +39,28 @@ export default function EnvironmentCreatorPage() {
   const [environments, setEnvironments] = useState<Environment[]>([]);
   const [selectedEnv, setSelectedEnv] = useState<Environment | null>(null);
   const [isCreating, setIsCreating] = useState(false);
-  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const saveEnvironmentMutation = useMutation({
+    mutationFn: async (env: Environment) => {
+      const response = await apiRequest('POST', '/api/environments', {
+        name: env.name,
+        type: env.type,
+        description: env.description,
+        atmosphere: env.atmosphere,
+        keyDetails: env.keyDetails,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/environments'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/history'] });
+      toast.success('Environment saved to your library');
+    },
+    onError: () => {
+      toast.error('Failed to save environment');
+    },
+  });
 
   const handleCreateNew = () => {
     const newEnv: Environment = {
@@ -59,22 +89,12 @@ export default function EnvironmentCreatorPage() {
     if (selectedEnv?.id === id) {
       setSelectedEnv(null);
     }
-    toast({
-      title: "Environment deleted",
-      description: "The environment has been removed.",
-    });
+    toast.success('Environment removed');
   };
 
   const handleSave = () => {
     if (!selectedEnv) return;
-    wikiStore.addEnvironment({
-      ...selectedEnv,
-      createdAt: Date.now()
-    });
-    toast({
-      title: "Environment saved",
-      description: `${selectedEnv.name} has been saved to your Story Wiki.`,
-    });
+    saveEnvironmentMutation.mutate(selectedEnv);
     setIsCreating(false);
   };
 
@@ -92,7 +112,7 @@ export default function EnvironmentCreatorPage() {
         </div>
         <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-[10px] font-medium text-primary">Kie AI Online</span>
+          <span className="text-[10px] font-medium text-primary">AI Online</span>
         </div>
       </header>
 
@@ -159,9 +179,13 @@ export default function EnvironmentCreatorPage() {
               </div>
 
               <div className="flex gap-3 pt-4">
-                <Button onClick={handleSave} className="flex-1">
+                <Button 
+                  onClick={handleSave} 
+                  className="flex-1"
+                  disabled={saveEnvironmentMutation.isPending}
+                >
                   <Save className="w-4 h-4 mr-2" />
-                  Save Environment
+                  {saveEnvironmentMutation.isPending ? 'Saving...' : 'Save Environment'}
                 </Button>
                 <Button
                   variant="secondary"

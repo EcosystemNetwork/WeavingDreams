@@ -1,10 +1,14 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Film, Gamepad2, Plus, BookOpen, Clock } from 'lucide-react';
+import { ArrowLeft, Film, Gamepad2, Plus, BookOpen, Clock, LogOut, User } from 'lucide-react';
 import { Link } from 'wouter';
+import { useAuth } from '@/hooks/useAuth';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 export default function DashboardPage() {
+  const { user } = useAuth();
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Header */}
@@ -30,12 +34,33 @@ export default function DashboardPage() {
               Story Wiki
             </Button>
           </Link>
+          <div className="flex items-center gap-2 ml-4 pl-4 border-l border-border">
+            <Avatar className="w-8 h-8">
+              <AvatarImage src={user?.profileImageUrl || ''} alt={user?.firstName || 'User'} />
+              <AvatarFallback className="bg-primary/20 text-primary text-xs">
+                {user?.firstName?.[0] || user?.email?.[0] || <User className="w-4 h-4" />}
+              </AvatarFallback>
+            </Avatar>
+            <a href="/api/logout">
+              <Button variant="ghost" size="sm" className="hover:bg-destructive/10 hover:text-destructive">
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </a>
+          </div>
         </div>
       </header>
 
       <div className="flex-1 overflow-auto p-8">
         <div className="max-w-6xl mx-auto space-y-12">
           
+          {/* Welcome */}
+          <div className="space-y-2">
+            <h2 className="text-3xl font-bold">
+              Welcome back{user?.firstName ? `, ${user.firstName}` : ''}
+            </h2>
+            <p className="text-muted-foreground">Continue crafting your stories or start something new</p>
+          </div>
+
           {/* Recent Projects */}
           <div className="space-y-4">
             <div>
