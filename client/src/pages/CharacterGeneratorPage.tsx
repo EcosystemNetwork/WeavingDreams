@@ -12,7 +12,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { toast } from 'sonner';
 import type { CreditAccount } from '@shared/schema';
 
-const GENERATE_COST = 5;
+const GENERATE_COST = 10;
 
 export default function CharacterGeneratorPage() {
   const [character, setCharacter] = useState<Character | null>(null);
