@@ -17,6 +17,7 @@ import PropCreatorPage from "@/pages/PropCreatorPage";
 import WikiPage from "@/pages/WikiPage";
 import HistoryPage from "@/pages/HistoryPage";
 import QuestsPage from "@/pages/QuestsPage";
+import LeaderboardPage from "@/pages/LeaderboardPage";
 import DimensionsPage from "@/pages/DimensionsPage";
 import MediaHubPage from "@/pages/MediaHubPage";
 import FilmsPage from "@/pages/FilmsPage";
@@ -92,6 +93,9 @@ function Router() {
       </Route>
       <Route path="/quests">
         <ProtectedRoute component={QuestsPage} />
+      </Route>
+      <Route path="/leaderboard">
+        <ProtectedRoute component={LeaderboardPage} />
       </Route>
 
       <Route component={NotFound} />

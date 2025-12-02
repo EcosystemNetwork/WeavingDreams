@@ -57,6 +57,7 @@ export interface IStorage {
   getCreditBalance(userId: string): Promise<number>;
   adjustCredits(userId: string, amount: number, type: string, source: string, description?: string): Promise<CreditAccount>;
   getCreditTransactions(userId: string, limit?: number): Promise<CreditTransaction[]>;
+  getLeaderboard(limit?: number): Promise<(CreditAccount & { user?: { firstName: string | null; lastName: string | null; email: string | null } })[]>;
   
   // Quest operations
   getActiveQuestTemplates(): Promise<QuestTemplate[]>;
@@ -285,6 +286,30 @@ export class DatabaseStorage implements IStorage {
       .from(creditTransactions)
       .where(eq(creditTransactions.userId, userId))
       .orderBy(desc(creditTransactions.createdAt))
+      .limit(limit);
+  }
+
+  async getLeaderboard(limit = 100): Promise<(CreditAccount & { user?: { firstName: string; lastName: string; email: string } })[]> {
+    return await db
+      .select({
+        id: creditAccounts.id,
+        userId: creditAccounts.userId,
+        balance: creditAccounts.balance,
+        totalEarned: creditAccounts.totalEarned,
+        totalSpent: creditAccounts.totalSpent,
+        lastDailyReward: creditAccounts.lastDailyReward,
+        loginStreak: creditAccounts.loginStreak,
+        createdAt: creditAccounts.createdAt,
+        updatedAt: creditAccounts.updatedAt,
+        user: {
+          firstName: users.firstName,
+          lastName: users.lastName,
+          email: users.email,
+        },
+      })
+      .from(creditAccounts)
+      .innerJoin(users, eq(creditAccounts.userId, users.id))
+      .orderBy(desc(creditAccounts.totalEarned))
       .limit(limit);
   }
 

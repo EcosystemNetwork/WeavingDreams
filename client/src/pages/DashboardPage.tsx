@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Film, Gamepad2, Plus, BookOpen, Clock, LogOut, User, Coins, Gift, Flame } from 'lucide-react';
+import { ArrowLeft, Film, Gamepad2, Plus, BookOpen, Clock, LogOut, User, Coins, Gift, Flame, Trophy } from 'lucide-react';
 import { Link } from 'wouter';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
@@ -28,6 +28,12 @@ export default function DashboardPage() {
           <h1 className="font-bold text-sm tracking-wide">Dashboard</h1>
         </div>
         <div className="flex items-center gap-2">
+          <Link href="/leaderboard">
+            <Button variant="ghost" size="sm" className="hover:bg-primary/10 hover:text-primary">
+              <Trophy className="w-4 h-4 mr-2" />
+              Leaderboard
+            </Button>
+          </Link>
           <Link href="/quests">
             <Button variant="ghost" size="sm" className="hover:bg-primary/10 hover:text-primary">
               <Gift className="w-4 h-4 mr-2" />
