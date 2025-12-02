@@ -21,11 +21,6 @@ export default function LandingPage() {
 
         {/* Content */}
         <div className="relative z-10 container px-4 text-center space-y-8 pt-20">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm mb-4">
-            <Cpu className="w-4 h-4 text-primary" />
-            <span className="text-xs font-medium text-primary tracking-wider">POWERED BY KIE AI</span>
-          </div>
-          
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-tight bg-clip-text text-transparent bg-gradient-to-br from-white via-white/90 to-white/50 drop-shadow-2xl py-2">
             Weaving Dreams
           </h1>
