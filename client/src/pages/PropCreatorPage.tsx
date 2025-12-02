@@ -41,6 +41,19 @@ export default function PropCreatorPage() {
   const [isCreating, setIsCreating] = useState(false);
   const queryClient = useQueryClient();
 
+  const updateQuestProgressMutation = useMutation({
+    mutationFn: async (questType: string) => {
+      const response = await apiRequest('POST', '/api/quests/progress', {
+        questType,
+        increment: 1,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/quests/daily'] });
+    },
+  });
+
   const savePropMutation = useMutation({
     mutationFn: async (prop: Prop) => {
       const response = await apiRequest('POST', '/api/props', {
@@ -55,6 +68,7 @@ export default function PropCreatorPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/props'] });
       queryClient.invalidateQueries({ queryKey: ['/api/history'] });
+      updateQuestProgressMutation.mutate('prop_create');
       toast.success('Prop saved to your library');
     },
     onError: () => {

@@ -41,6 +41,19 @@ export default function EnvironmentCreatorPage() {
   const [isCreating, setIsCreating] = useState(false);
   const queryClient = useQueryClient();
 
+  const updateQuestProgressMutation = useMutation({
+    mutationFn: async (questType: string) => {
+      const response = await apiRequest('POST', '/api/quests/progress', {
+        questType,
+        increment: 1,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/quests/daily'] });
+    },
+  });
+
   const saveEnvironmentMutation = useMutation({
     mutationFn: async (env: Environment) => {
       const response = await apiRequest('POST', '/api/environments', {
@@ -55,6 +68,7 @@ export default function EnvironmentCreatorPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/environments'] });
       queryClient.invalidateQueries({ queryKey: ['/api/history'] });
+      updateQuestProgressMutation.mutate('environment_create');
       toast.success('Environment saved to your library');
     },
     onError: () => {

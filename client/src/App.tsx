@@ -16,6 +16,7 @@ import EnvironmentCreatorPage from "@/pages/EnvironmentCreatorPage";
 import PropCreatorPage from "@/pages/PropCreatorPage";
 import WikiPage from "@/pages/WikiPage";
 import HistoryPage from "@/pages/HistoryPage";
+import QuestsPage from "@/pages/QuestsPage";
 import DimensionsPage from "@/pages/DimensionsPage";
 import MediaHubPage from "@/pages/MediaHubPage";
 import FilmsPage from "@/pages/FilmsPage";
@@ -88,6 +89,9 @@ function Router() {
       </Route>
       <Route path="/history">
         <ProtectedRoute component={HistoryPage} />
+      </Route>
+      <Route path="/quests">
+        <ProtectedRoute component={QuestsPage} />
       </Route>
 
       <Route component={NotFound} />

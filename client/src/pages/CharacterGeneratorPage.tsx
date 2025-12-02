@@ -4,18 +4,52 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, Sparkles, RotateCw, Copy, BookOpen, Save } from 'lucide-react';
+import { ArrowLeft, Sparkles, RotateCw, Copy, Save, Coins } from 'lucide-react';
 import { Link } from 'wouter';
 import { mockKieAi, Character } from '@/lib/mockAi';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { toast } from 'sonner';
+import type { CreditAccount } from '@shared/schema';
+
+const GENERATE_COST = 5;
 
 export default function CharacterGeneratorPage() {
   const [character, setCharacter] = useState<Character | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [characters, setCharacters] = useState<Character[]>([]);
   const queryClient = useQueryClient();
+
+  const { data: creditAccount, isLoading: isLoadingCredits } = useQuery<CreditAccount>({
+    queryKey: ['/api/credits'],
+  });
+
+  const spendCreditsMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest('POST', '/api/credits/spend', {
+        amount: GENERATE_COST,
+        source: 'character_generation',
+        description: 'AI character generation',
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/credits'] });
+    },
+  });
+
+  const updateQuestProgressMutation = useMutation({
+    mutationFn: async (questType: string) => {
+      const response = await apiRequest('POST', '/api/quests/progress', {
+        questType,
+        increment: 1,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/quests/daily'] });
+    },
+  });
 
   const saveCharacterMutation = useMutation({
     mutationFn: async (char: Character) => {
@@ -33,6 +67,7 @@ export default function CharacterGeneratorPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/characters'] });
       queryClient.invalidateQueries({ queryKey: ['/api/history'] });
+      updateQuestProgressMutation.mutate('character_create');
       toast.success('Character saved to your library');
     },
     onError: () => {
@@ -41,14 +76,30 @@ export default function CharacterGeneratorPage() {
   });
 
   const handleGenerate = async () => {
+    if (isLoadingCredits) {
+      toast.error('Please wait while credits are loading...');
+      return;
+    }
+    
+    if (!creditAccount || creditAccount.balance < GENERATE_COST) {
+      toast.error(`Not enough credits! You need ${GENERATE_COST} credits to generate a character.`);
+      return;
+    }
+
     setIsGenerating(true);
     try {
+      await spendCreditsMutation.mutateAsync();
       const newChar = await mockKieAi.generateCharacter();
       setCharacter(newChar);
       setCharacters([newChar, ...characters]);
+      updateQuestProgressMutation.mutate('ai_usage');
       toast.success(`${newChar.name} has been created!`);
-    } catch (error) {
-      toast.error('Failed to generate character');
+    } catch (error: any) {
+      if (error.message?.includes('Insufficient credits')) {
+        toast.error('Not enough credits to generate character');
+      } else {
+        toast.error('Failed to generate character');
+      }
     } finally {
       setIsGenerating(false);
     }
@@ -74,6 +125,9 @@ Trait: ${character.trait}
     saveCharacterMutation.mutate(character);
   };
 
+  const hasEnoughCredits = !isLoadingCredits && creditAccount && creditAccount.balance >= GENERATE_COST;
+  const isButtonDisabled = isGenerating || isLoadingCredits || !hasEnoughCredits;
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Header */}
@@ -86,9 +140,19 @@ Trait: ${character.trait}
           </Link>
           <h1 className="font-bold text-sm tracking-wide">Character Generator</h1>
         </div>
-        <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
-          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-[10px] font-medium text-primary">AI Online</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-[10px] font-medium text-primary">AI Online</span>
+          </div>
+          <Link href="/quests">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 rounded-full border border-amber-500/30 hover:border-amber-500/50 transition-colors cursor-pointer">
+              <Coins className="w-4 h-4 text-amber-400" />
+              <span className="font-bold text-amber-300 text-sm">
+                {creditAccount?.balance ?? '...'}
+              </span>
+            </div>
+          </Link>
         </div>
       </header>
 
@@ -153,10 +217,10 @@ Trait: ${character.trait}
                 <Button 
                   className="flex-1" 
                   onClick={handleGenerate}
-                  disabled={isGenerating}
+                  disabled={isButtonDisabled}
                 >
                   <RotateCw className="w-4 h-4 mr-2" />
-                  {isGenerating ? 'Generating...' : 'Generate New'}
+                  {isGenerating ? 'Generating...' : isLoadingCredits ? 'Loading...' : `Generate New (${GENERATE_COST} credits)`}
                 </Button>
                 <Button 
                   variant="secondary" 
@@ -188,15 +252,26 @@ Trait: ${character.trait}
                   Let AI generate a compelling character profile with unique traits, motivations, and backstory.
                 </p>
               </div>
-              <Button 
-                size="lg" 
-                className="h-12 px-8"
-                onClick={handleGenerate}
-                disabled={isGenerating}
-              >
-                <Sparkles className="w-5 h-5 mr-2" />
-                {isGenerating ? 'Generating...' : 'Generate Character'}
-              </Button>
+              <div className="space-y-2">
+                <Button 
+                  size="lg" 
+                  className="h-12 px-8"
+                  onClick={handleGenerate}
+                  disabled={isButtonDisabled}
+                >
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  {isGenerating ? 'Generating...' : isLoadingCredits ? 'Loading...' : 'Generate Character'}
+                </Button>
+                <div className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
+                  <Coins className="w-4 h-4 text-amber-400" />
+                  <span>Costs {GENERATE_COST} credits</span>
+                  {!isLoadingCredits && !hasEnoughCredits && (
+                    <Link href="/quests">
+                      <span className="text-primary hover:underline ml-1">(Get more)</span>
+                    </Link>
+                  )}
+                </div>
+              </div>
             </div>
           )}
         </div>

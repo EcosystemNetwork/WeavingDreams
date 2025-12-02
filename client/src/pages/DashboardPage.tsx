@@ -1,13 +1,19 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Film, Gamepad2, Plus, BookOpen, Clock, LogOut, User } from 'lucide-react';
+import { ArrowLeft, Film, Gamepad2, Plus, BookOpen, Clock, LogOut, User, Coins, Gift, Flame } from 'lucide-react';
 import { Link } from 'wouter';
 import { useAuth } from '@/hooks/useAuth';
+import { useQuery } from '@tanstack/react-query';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import type { CreditAccount } from '@shared/schema';
 
 export default function DashboardPage() {
   const { user } = useAuth();
+
+  const { data: creditAccount } = useQuery<CreditAccount>({
+    queryKey: ['/api/credits'],
+  });
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
@@ -22,6 +28,12 @@ export default function DashboardPage() {
           <h1 className="font-bold text-sm tracking-wide">Dashboard</h1>
         </div>
         <div className="flex items-center gap-2">
+          <Link href="/quests">
+            <Button variant="ghost" size="sm" className="hover:bg-primary/10 hover:text-primary">
+              <Gift className="w-4 h-4 mr-2" />
+              Quests
+            </Button>
+          </Link>
           <Link href="/history">
             <Button variant="ghost" size="sm" className="hover:bg-primary/10 hover:text-primary">
               <Clock className="w-4 h-4 mr-2" />
@@ -34,7 +46,24 @@ export default function DashboardPage() {
               Story Wiki
             </Button>
           </Link>
-          <div className="flex items-center gap-2 ml-4 pl-4 border-l border-border">
+          
+          {/* Credit Balance */}
+          <Link href="/quests">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 rounded-full border border-amber-500/30 hover:border-amber-500/50 transition-colors cursor-pointer">
+              <Coins className="w-4 h-4 text-amber-400" />
+              <span className="font-bold text-amber-300 text-sm">
+                {creditAccount?.balance ?? '...'}
+              </span>
+              {creditAccount?.loginStreak && creditAccount.loginStreak > 1 && (
+                <div className="flex items-center gap-1 text-orange-400">
+                  <Flame className="w-3 h-3" />
+                  <span className="text-xs">{creditAccount.loginStreak}</span>
+                </div>
+              )}
+            </div>
+          </Link>
+          
+          <div className="flex items-center gap-2 ml-2 pl-4 border-l border-border">
             <Avatar className="w-8 h-8">
               <AvatarImage src={user?.profileImageUrl || ''} alt={user?.firstName || 'User'} />
               <AvatarFallback className="bg-primary/20 text-primary text-xs">

@@ -195,6 +195,119 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Credit routes
+  app.get('/api/credits', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const account = await storage.getOrCreateCreditAccount(userId);
+      res.json(account);
+    } catch (error) {
+      console.error("Error fetching credits:", error);
+      res.status(500).json({ message: "Failed to fetch credits" });
+    }
+  });
+
+  app.get('/api/credits/transactions', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const limit = parseInt(req.query.limit as string) || 50;
+      const transactions = await storage.getCreditTransactions(userId, limit);
+      res.json(transactions);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+      res.status(500).json({ message: "Failed to fetch transactions" });
+    }
+  });
+
+  app.post('/api/credits/spend', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { amount, source, description } = req.body;
+      
+      if (!amount || amount <= 0) {
+        return res.status(400).json({ message: "Invalid amount" });
+      }
+      
+      const account = await storage.adjustCredits(
+        userId,
+        -amount,
+        'spend',
+        source || 'ai_generation',
+        description
+      );
+      res.json(account);
+    } catch (error: any) {
+      console.error("Error spending credits:", error);
+      if (error.message === 'Insufficient credits') {
+        return res.status(400).json({ message: "Insufficient credits" });
+      }
+      res.status(500).json({ message: "Failed to spend credits" });
+    }
+  });
+
+  app.post('/api/credits/daily-login', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const result = await storage.claimDailyLoginReward(userId);
+      
+      if (!result) {
+        return res.status(400).json({ message: "Daily reward already claimed", claimed: true });
+      }
+      
+      res.json({ 
+        success: true, 
+        credits: result.credits, 
+        streak: result.streak,
+        message: `Claimed ${result.credits} credits! (${result.streak} day streak)`
+      });
+    } catch (error) {
+      console.error("Error claiming daily login:", error);
+      res.status(500).json({ message: "Failed to claim daily login reward" });
+    }
+  });
+
+  // Quest routes
+  app.get('/api/quests/daily', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const today = new Date().toISOString().split('T')[0];
+      
+      await storage.assignDailyQuests(userId, today);
+      const quests = await storage.getDailyQuests(userId, today);
+      
+      res.json(quests);
+    } catch (error) {
+      console.error("Error fetching daily quests:", error);
+      res.status(500).json({ message: "Failed to fetch daily quests" });
+    }
+  });
+
+  app.post('/api/quests/:id/claim', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const questId = parseInt(req.params.id);
+      
+      const account = await storage.claimQuestReward(userId, questId);
+      res.json({ success: true, account });
+    } catch (error: any) {
+      console.error("Error claiming quest reward:", error);
+      res.status(400).json({ message: error.message || "Failed to claim reward" });
+    }
+  });
+
+  app.post('/api/quests/progress', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { questType, increment } = req.body;
+      
+      await storage.updateQuestProgress(userId, questType, increment || 1);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error updating quest progress:", error);
+      res.status(500).json({ message: "Failed to update quest progress" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
