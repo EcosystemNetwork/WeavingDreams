@@ -10,6 +10,14 @@ import {
   SheetTitle,
   SheetClose
 } from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from '@/components/ui/dropdown-menu';
 import { 
   ArrowLeft, 
   Coins, 
@@ -23,7 +31,12 @@ import {
   Play,
   Sparkles,
   Layers,
-  Menu
+  Menu,
+  ChevronDown,
+  Users,
+  Mountain,
+  Box,
+  Wand2
 } from 'lucide-react';
 import type { CreditAccount } from '@shared/schema';
 
@@ -41,7 +54,7 @@ export function Navigation({
   showNavButtons = true 
 }: NavigationProps) {
   const { user, isAuthenticated } = useAuth();
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
 
   const { data: creditAccount } = useQuery<CreditAccount>({
     queryKey: ['/api/credits'],
@@ -49,14 +62,18 @@ export function Navigation({
   });
 
   const isActive = (path: string) => location === path;
+  const isCreationActive = ['/characters', '/environment-creator', '/props', '/narrative-studio'].includes(location);
 
   const publicNavItems = [
     { href: '/media', icon: Play, label: 'Media', testId: 'button-media' },
     { href: '/dimensions', icon: Layers, label: 'Dimensions', testId: 'button-dimensions' },
   ];
 
-  const protectedNavItems = [
-    { href: '/narrative-studio', icon: Sparkles, label: 'Create', testId: 'button-create' },
+  const creationItems = [
+    { href: '/narrative-studio', icon: Wand2, label: 'Narrative Studio', description: 'Visual story editor', testId: 'menu-narrative-studio' },
+    { href: '/characters', icon: Users, label: 'Characters', description: 'AI-powered character creation', testId: 'menu-characters' },
+    { href: '/environment-creator', icon: Mountain, label: 'Environments', description: 'Design story locations', testId: 'menu-environments' },
+    { href: '/props', icon: Box, label: 'Props', description: 'Create story objects', testId: 'menu-props' },
   ];
 
   const userNavItems = [
@@ -66,10 +83,6 @@ export function Navigation({
     { href: '/wiki', icon: BookOpen, label: 'Wiki', testId: 'button-wiki' },
     { href: '/profile', icon: User, label: 'Profile', testId: 'button-profile' },
   ];
-
-  const mainNavItems = isAuthenticated 
-    ? [...publicNavItems, ...protectedNavItems]
-    : publicNavItems;
 
   return (
     <header className="h-14 border-b border-border bg-card/50 backdrop-blur-sm px-4 flex items-center justify-between sticky top-0 z-40">
@@ -89,7 +102,7 @@ export function Navigation({
           <>
             {/* Main Navigation - Desktop */}
             <div className="hidden lg:flex items-center gap-1 mr-2 pr-2 border-r border-border">
-              {mainNavItems.map((item) => (
+              {publicNavItems.map((item) => (
                 <Link key={item.href} href={item.href}>
                   <Button 
                     variant="ghost" 
@@ -102,6 +115,42 @@ export function Navigation({
                   </Button>
                 </Link>
               ))}
+
+              {/* Creation Portal Dropdown - Desktop */}
+              {isAuthenticated && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className={`hover:bg-primary/10 hover:text-primary gap-1.5 ${isCreationActive ? 'bg-primary/10 text-primary' : ''}`}
+                      data-testid="button-create-portal"
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      <span className="text-xs">Create</span>
+                      <ChevronDown className="w-3 h-3 ml-0.5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel className="text-xs text-muted-foreground">Creation Portal</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {creationItems.map((item) => (
+                      <DropdownMenuItem 
+                        key={item.href}
+                        className="cursor-pointer"
+                        onClick={() => setLocation(item.href)}
+                        data-testid={item.testId}
+                      >
+                        <item.icon className="w-4 h-4 mr-2" />
+                        <div className="flex flex-col">
+                          <span className="font-medium">{item.label}</span>
+                          <span className="text-xs text-muted-foreground">{item.description}</span>
+                        </div>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
 
             {/* User Navigation - Desktop (only when authenticated) */}
@@ -155,8 +204,8 @@ export function Navigation({
 
                   {isAuthenticated && (
                     <>
-                      <div className="text-xs text-muted-foreground uppercase tracking-wider mt-4 mb-2 px-3">Create</div>
-                      {protectedNavItems.map((item) => (
+                      <div className="text-xs text-muted-foreground uppercase tracking-wider mt-4 mb-2 px-3">Creation Portal</div>
+                      {creationItems.map((item) => (
                         <SheetClose asChild key={item.href}>
                           <Link href={item.href}>
                             <Button 
