@@ -10,13 +10,12 @@ Set these in your Vercel project settings:
 
 ### Required
 - `DATABASE_URL` - PostgreSQL connection string (Neon recommended)
-- `REPL_ID` - Replit application ID for authentication
-- `ISSUER_URL` - OIDC issuer URL for Replit Auth
-- `SESSION_SECRET` - Secret key for session encryption
 
 ### Optional
 - `NODE_ENV` - Set to `production` (automatically set by Vercel)
 - `PORT` - Not needed for Vercel (handled automatically)
+
+**Note:** Authentication has been removed. The app uses a mock user system for development.
 
 ## Deployment Steps
 

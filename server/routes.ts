@@ -1,7 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
 import { 
   insertCharacterSchema, insertEnvironmentSchema, insertPropSchema,
   updateCharacterSchema, updateEnvironmentSchema, updatePropSchema,
@@ -10,15 +9,31 @@ import {
 import { GENERATION_TIME_BADGES } from "./badgeConstants";
 import { generateCharacterImage, generateCharacterProfile } from "./kieAi";
 
-export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
+// Mock user ID for development (no auth)
+const MOCK_USER_ID = "mock-user-123";
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+// Helper to get user ID (for future auth implementation)
+function getUserId(_req: any): string {
+  return MOCK_USER_ID;
+}
+
+export async function registerRoutes(app: Express): Promise<Server> {
+  // Mock auth route - returns a default user
+  app.get('/api/auth/user', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      let user = await storage.getUser(MOCK_USER_ID);
+      
+      // Create mock user if doesn't exist
+      if (!user) {
+        user = await storage.upsertUser({
+          id: MOCK_USER_ID,
+          email: "demo@example.com",
+          firstName: "Demo",
+          lastName: "User",
+          profileImageUrl: null,
+        });
+      }
+      
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -27,9 +42,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Character routes
-  app.get('/api/characters', isAuthenticated, async (req: any, res) => {
+  app.get('/api/characters', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const characters = await storage.getCharacters(userId);
       res.json(characters);
     } catch (error) {
@@ -38,9 +53,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/characters', isAuthenticated, async (req: any, res) => {
+  app.post('/api/characters', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const validatedData = insertCharacterSchema.parse({ ...req.body, userId });
       const character = await storage.createCharacter(validatedData);
       
@@ -62,9 +77,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/characters/:id', isAuthenticated, async (req: any, res) => {
+  app.patch('/api/characters/:id', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const id = parseInt(req.params.id);
       const validatedData = updateCharacterSchema.parse(req.body);
       const updated = await storage.updateCharacter(id, userId, validatedData);
@@ -78,9 +93,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/characters/:id', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/characters/:id', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const id = parseInt(req.params.id);
       await storage.deleteCharacter(id, userId);
       res.status(204).send();
@@ -91,7 +106,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Kie AI - Generate character profile
-  app.post('/api/kie-ai/generate-character', isAuthenticated, async (req: any, res) => {
+  app.post('/api/kie-ai/generate-character', async (req: any, res) => {
     try {
       const profile = await generateCharacterProfile();
       res.json(profile);
@@ -102,7 +117,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Kie AI - Generate character image
-  app.post('/api/kie-ai/generate-image', isAuthenticated, async (req: any, res) => {
+  app.post('/api/kie-ai/generate-image', async (req: any, res) => {
     try {
       const { name, archetype, personality, background } = req.body;
       
@@ -125,9 +140,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Environment routes
-  app.get('/api/environments', isAuthenticated, async (req: any, res) => {
+  app.get('/api/environments', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const environments = await storage.getEnvironments(userId);
       res.json(environments);
     } catch (error) {
@@ -136,9 +151,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/environments', isAuthenticated, async (req: any, res) => {
+  app.post('/api/environments', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const validatedData = insertEnvironmentSchema.parse({ ...req.body, userId });
       const environment = await storage.createEnvironment(validatedData);
       res.status(201).json(environment);
@@ -148,9 +163,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/environments/:id', isAuthenticated, async (req: any, res) => {
+  app.patch('/api/environments/:id', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const id = parseInt(req.params.id);
       const validatedData = updateEnvironmentSchema.parse(req.body);
       const updated = await storage.updateEnvironment(id, userId, validatedData);
@@ -164,9 +179,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/environments/:id', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/environments/:id', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const id = parseInt(req.params.id);
       await storage.deleteEnvironment(id, userId);
       res.status(204).send();
@@ -177,9 +192,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Prop routes
-  app.get('/api/props', isAuthenticated, async (req: any, res) => {
+  app.get('/api/props', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const props = await storage.getProps(userId);
       res.json(props);
     } catch (error) {
@@ -188,9 +203,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/props', isAuthenticated, async (req: any, res) => {
+  app.post('/api/props', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const validatedData = insertPropSchema.parse({ ...req.body, userId });
       const prop = await storage.createProp(validatedData);
       res.status(201).json(prop);
@@ -200,9 +215,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/props/:id', isAuthenticated, async (req: any, res) => {
+  app.patch('/api/props/:id', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const id = parseInt(req.params.id);
       const validatedData = updatePropSchema.parse(req.body);
       const updated = await storage.updateProp(id, userId, validatedData);
@@ -216,9 +231,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/props/:id', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/props/:id', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const id = parseInt(req.params.id);
       await storage.deleteProp(id, userId);
       res.status(204).send();
@@ -229,9 +244,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get all creations for history page
-  app.get('/api/history', isAuthenticated, async (req: any, res) => {
+  app.get('/api/history', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const [characters, environments, props] = await Promise.all([
         storage.getCharacters(userId),
         storage.getEnvironments(userId),
@@ -245,9 +260,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Credit routes
-  app.get('/api/credits', isAuthenticated, async (req: any, res) => {
+  app.get('/api/credits', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const account = await storage.getOrCreateCreditAccount(userId);
       res.json(account);
     } catch (error) {
@@ -256,9 +271,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/credits/transactions', isAuthenticated, async (req: any, res) => {
+  app.get('/api/credits/transactions', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const limit = parseInt(req.query.limit as string) || 50;
       const transactions = await storage.getCreditTransactions(userId, limit);
       res.json(transactions);
@@ -268,9 +283,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/credits/spend', isAuthenticated, async (req: any, res) => {
+  app.post('/api/credits/spend', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const { amount, source, description } = req.body;
       
       if (!amount || amount <= 0) {
@@ -294,9 +309,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/credits/daily-login', isAuthenticated, async (req: any, res) => {
+  app.post('/api/credits/daily-login', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const result = await storage.claimDailyLoginReward(userId);
       
       if (!result) {
@@ -315,7 +330,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/leaderboard', isAuthenticated, async (req: any, res) => {
+  app.get('/api/leaderboard', async (req: any, res) => {
     try {
       const limit = parseInt(req.query.limit as string) || 100;
       const leaderboard = await storage.getLeaderboard(limit);
@@ -327,9 +342,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Quest routes
-  app.get('/api/quests/daily', isAuthenticated, async (req: any, res) => {
+  app.get('/api/quests/daily', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const today = new Date().toISOString().split('T')[0];
       
       await storage.assignDailyQuests(userId, today);
@@ -342,9 +357,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/quests/:id/claim', isAuthenticated, async (req: any, res) => {
+  app.post('/api/quests/:id/claim', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const questId = parseInt(req.params.id);
       
       const account = await storage.claimQuestReward(userId, questId);
@@ -355,9 +370,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/quests/progress', isAuthenticated, async (req: any, res) => {
+  app.post('/api/quests/progress', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const { questType, increment } = req.body;
       
       await storage.updateQuestProgress(userId, questType, increment || 1);
@@ -369,9 +384,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Profile routes
-  app.put('/api/profile', isAuthenticated, async (req: any, res) => {
+  app.put('/api/profile', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const { bio, profileImageUrl } = req.body;
       
       const updated = await storage.updateUserProfile(userId, { bio, profileImageUrl });
@@ -382,9 +397,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/profile/badges', isAuthenticated, async (req: any, res) => {
+  app.get('/api/profile/badges', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const badges = await storage.getUserBadges(userId);
       res.json(badges);
     } catch (error) {
@@ -404,9 +419,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/gallery/my', isAuthenticated, async (req: any, res) => {
+  app.get('/api/gallery/my', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const items = await storage.getUserGalleryItems(userId);
       res.json(items);
     } catch (error) {
@@ -415,9 +430,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/gallery/likes', isAuthenticated, async (req: any, res) => {
+  app.get('/api/gallery/likes', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const likes = await storage.getUserLikes(userId);
       res.json(likes);
     } catch (error) {
@@ -426,9 +441,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/gallery', isAuthenticated, async (req: any, res) => {
+  app.post('/api/gallery', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const validatedData = insertGalleryItemSchema.parse({ ...req.body, userId });
       const item = await storage.createGalleryItem(validatedData);
       res.status(201).json(item);
@@ -438,9 +453,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/gallery/:id', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/gallery/:id', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const id = parseInt(req.params.id);
       await storage.deleteGalleryItem(id, userId);
       res.status(204).send();
@@ -450,9 +465,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/gallery/:id/like', isAuthenticated, async (req: any, res) => {
+  app.post('/api/gallery/:id/like', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const id = parseInt(req.params.id);
       await storage.likeGalleryItem(userId, id);
       res.json({ success: true });
@@ -462,9 +477,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/gallery/:id/like', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/gallery/:id/like', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const id = parseInt(req.params.id);
       await storage.unlikeGalleryItem(userId, id);
       res.json({ success: true });
@@ -496,9 +511,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/projects/my', isAuthenticated, async (req: any, res) => {
+  app.get('/api/projects/my', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const projects = await storage.getUserNarrativeProjects(userId);
       res.json(projects);
     } catch (error) {
@@ -507,9 +522,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/projects/contributions', isAuthenticated, async (req: any, res) => {
+  app.get('/api/projects/contributions', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const contributions = await storage.getUserContributions(userId);
       res.json(contributions);
     } catch (error) {
@@ -518,9 +533,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/projects', isAuthenticated, async (req: any, res) => {
+  app.post('/api/projects', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const validatedData = insertNarrativeProjectSchema.parse({ ...req.body, userId });
       const project = await storage.createNarrativeProject(validatedData);
       res.status(201).json(project);
@@ -530,9 +545,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/projects/:id/contribute', isAuthenticated, async (req: any, res) => {
+  app.post('/api/projects/:id/contribute', async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = getUserId(req);
       const projectId = parseInt(req.params.id);
       const { amount } = req.body;
       

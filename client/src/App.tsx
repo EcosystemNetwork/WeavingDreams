@@ -27,7 +27,7 @@ import ShortsPage from "@/pages/ShortsPage";
 import GalleryPage from "@/pages/GalleryPage";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -37,11 +37,7 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
     );
   }
 
-  if (!isAuthenticated) {
-    window.location.href = "/api/login";
-    return null;
-  }
-
+  // No auth required - always allow access
   return <Component />;
 }
 

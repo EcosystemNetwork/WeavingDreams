@@ -7,10 +7,11 @@ export function useAuth() {
     retry: false,
   });
 
+  // Always return authenticated (no auth required)
   return {
-    user,
+    user: user || undefined,
     isLoading,
-    isAuthenticated: !!user,
+    isAuthenticated: true, // Always authenticated
     error,
   };
 }
