@@ -10,10 +10,57 @@ export function serveStatic(app: Express) {
     );
   }
 
-  app.use(express.static(distPath));
+  // Serve static files with proper MIME types and caching
+  app.use(express.static(distPath, {
+    maxAge: '1y',
+    etag: true,
+    lastModified: true,
+    setHeaders: (res, filePath) => {
+      // Set proper MIME types for common file extensions
+      const ext = path.extname(filePath).toLowerCase();
+      const mimeTypes: Record<string, string> = {
+        '.js': 'application/javascript',
+        '.mjs': 'application/javascript',
+        '.css': 'text/css',
+        '.html': 'text/html',
+        '.json': 'application/json',
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.gif': 'image/gif',
+        '.svg': 'image/svg+xml',
+        '.webp': 'image/webp',
+        '.ico': 'image/x-icon',
+        '.woff': 'font/woff',
+        '.woff2': 'font/woff2',
+        '.ttf': 'font/ttf',
+        '.eot': 'application/vnd.ms-fontobject',
+      };
 
-  // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
+      if (mimeTypes[ext]) {
+        res.setHeader('Content-Type', mimeTypes[ext]);
+      }
+
+      // Cache static assets
+      if (ext.match(/\.(js|css|png|jpg|jpeg|gif|svg|webp|woff|woff2|ttf|eot)$/)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else if (ext === '.html') {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      }
+    },
+  }));
+
+  // SPA fallback: serve index.html for all non-API routes
+  app.get("*", (req, res, next) => {
+    // Don't serve index.html for API routes
+    if (req.path.startsWith("/api")) {
+      return next();
+    }
+    res.sendFile(path.resolve(distPath, "index.html"), {
+      headers: {
+        'Content-Type': 'text/html',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      },
+    });
   });
 }
