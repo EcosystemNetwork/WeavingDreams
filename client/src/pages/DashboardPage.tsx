@@ -48,6 +48,11 @@ export default function DashboardPage() {
               <BookOpen className="w-4 h-4" />
             </Button>
           </Link>
+          <Link href="/profile">
+            <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary hidden sm:inline-flex" data-testid="button-profile">
+              <User className="w-4 h-4" />
+            </Button>
+          </Link>
           
           {/* Credit Balance - Mobile optimized */}
           <Link href="/quests">

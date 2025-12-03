@@ -7,6 +7,8 @@ import {
   creditTransactions,
   questTemplates,
   userDailyQuests,
+  badges,
+  userBadges,
   type User,
   type UpsertUser,
   type Character,
@@ -22,6 +24,8 @@ import {
   type CreditTransaction,
   type QuestTemplate,
   type UserDailyQuest,
+  type Badge,
+  type UserBadgeWithDetails,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
@@ -30,6 +34,8 @@ export interface IStorage {
   // User operations (required for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
+  updateUserProfile(id: string, data: { bio?: string; profileImageUrl?: string }): Promise<User | undefined>;
+  getUserBadges(userId: string): Promise<UserBadgeWithDetails[]>;
   
   // Character operations
   getCharacters(userId: string): Promise<Character[]>;
@@ -88,6 +94,32 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return user;
+  }
+
+  async updateUserProfile(id: string, data: { bio?: string; profileImageUrl?: string }): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
+  async getUserBadges(userId: string): Promise<UserBadgeWithDetails[]> {
+    return await db
+      .select()
+      .from(userBadges)
+      .where(eq(userBadges.userId, userId))
+      .leftJoin(badges, eq(userBadges.badgeId, badges.id))
+      .then((rows) =>
+        rows.map((row) => ({
+          ...row.user_badges,
+          badge: row.badges!,
+        }))
+      );
   }
 
   // Character operations

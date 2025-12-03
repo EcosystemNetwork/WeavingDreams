@@ -15,6 +15,12 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+export const updateUserProfileSchema = z.object({
+  bio: z.string().max(500).optional(),
+  profileImageUrl: z.string().url().optional(),
+});
+export type UpdateUserProfile = z.infer<typeof updateUserProfileSchema>;
+
 // Session storage table for Replit Auth
 export const sessions = pgTable(
   "sessions",
@@ -33,12 +39,42 @@ export const users = pgTable("users", {
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
+  bio: text("bio").default(""),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
+
+// Badges table - catalog of achievements
+export const badges = pgTable("badges", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description").notNull(),
+  icon: varchar("icon", { length: 50 }).notNull(),
+  color: varchar("color", { length: 50 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type Badge = typeof badges.$inferSelect;
+
+// User badges - earned by users
+export const userBadges = pgTable(
+  "user_badges",
+  {
+    id: serial("id").primaryKey(),
+    userId: varchar("user_id").notNull().references(() => users.id),
+    badgeId: integer("badge_id").notNull().references(() => badges.id),
+    earnedAt: timestamp("earned_at").defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("user_badge_idx").on(table.userId, table.badgeId),
+  ]
+);
+
+export type UserBadge = typeof userBadges.$inferSelect;
+export type UserBadgeWithDetails = UserBadge & { badge: Badge };
 
 // Characters table
 export const characters = pgTable("characters", {
