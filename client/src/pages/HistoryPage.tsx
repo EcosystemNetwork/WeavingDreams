@@ -142,25 +142,26 @@ export default function HistoryPage() {
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Header */}
       <header className="h-14 border-b border-border bg-card/50 backdrop-blur-sm px-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <Link href="/dashboard">
             <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary">
               <ArrowLeft className="w-5 h-5" />
             </Button>
           </Link>
           <div className="flex items-center gap-2">
-            <Clock className="w-5 h-5 text-primary" />
-            <h1 className="font-bold text-sm tracking-wide">Creation History</h1>
+            <Clock className="w-4 sm:w-5 h-4 sm:h-5 text-primary" />
+            <h1 className="font-bold text-xs sm:text-sm tracking-wide">Creation History</h1>
           </div>
         </div>
         <div className="text-xs text-muted-foreground">
-          {allCreations.length} Total Creations
+          <span className="hidden sm:inline">{allCreations.length} Total Creations</span>
+          <span className="sm:hidden">{allCreations.length}</span>
         </div>
       </header>
 
       {/* Content */}
       <div className="flex-1 overflow-auto">
-        <div className="max-w-4xl mx-auto p-8">
+        <div className="max-w-4xl mx-auto p-4 sm:p-8">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -171,7 +172,7 @@ export default function HistoryPage() {
               <p className="text-lg">No creations yet. Start building your story!</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {allCreations.map((creation) => (
                 <Card key={`${creation.type}-${creation.id}`} className="border-white/5 hover:border-primary/30 transition-all group">
                   <CardHeader className="pb-3">

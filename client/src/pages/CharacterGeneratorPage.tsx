@@ -131,24 +131,24 @@ Trait: ${character.trait}
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Header */}
-      <header className="h-14 border-b border-border bg-card/50 backdrop-blur-sm px-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <header className="h-14 border-b border-border bg-card/50 backdrop-blur-sm px-4 flex items-center justify-between overflow-x-auto">
+        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
           <Link href="/dashboard">
             <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary">
               <ArrowLeft className="w-5 h-5" />
             </Button>
           </Link>
-          <h1 className="font-bold text-sm tracking-wide">Character Generator</h1>
+          <h1 className="font-bold text-xs sm:text-sm tracking-wide flex-shrink-0">Character Gen</h1>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
+        <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
+          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
             <span className="text-[10px] font-medium text-primary">AI Online</span>
           </div>
           <Link href="/quests">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 rounded-full border border-amber-500/30 hover:border-amber-500/50 transition-colors cursor-pointer">
-              <Coins className="w-4 h-4 text-amber-400" />
-              <span className="font-bold text-amber-300 text-sm">
+            <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 rounded-full border border-amber-500/30 hover:border-amber-500/50 transition-colors cursor-pointer flex-shrink-0">
+              <Coins className="w-3 sm:w-4 h-3 sm:h-4 text-amber-400" />
+              <span className="font-bold text-amber-300 text-xs sm:text-sm">
                 {creditAccount?.balance ?? '...'}
               </span>
             </div>
@@ -158,15 +158,15 @@ Trait: ${character.trait}
 
       <div className="flex-1 overflow-hidden flex">
         {/* Main Panel */}
-        <div className="flex-1 flex flex-col items-center justify-center p-8">
+        <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8">
           {character ? (
-            <div className="w-full max-w-2xl space-y-6 animate-in slide-in-from-bottom-4 duration-300">
-              <div className="text-center mb-8">
-                <h2 className="text-5xl font-bold mb-2">{character.name}</h2>
+            <div className="w-full max-w-2xl space-y-4 sm:space-y-6 animate-in slide-in-from-bottom-4 duration-300">
+              <div className="text-center mb-4 sm:mb-8">
+                <h2 className="text-3xl sm:text-5xl font-bold mb-2">{character.name}</h2>
                 <Badge className="bg-primary/20 text-primary border-primary/30">{character.archetype}</Badge>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <Card className="border-white/5 hover:border-primary/30 transition-colors">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm">Background</CardTitle>
@@ -213,18 +213,19 @@ Trait: ${character.trait}
                 </CardContent>
               </Card>
 
-              <div className="flex gap-3 pt-4">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4">
                 <Button 
-                  className="flex-1" 
+                  className="flex-1 text-xs sm:text-sm" 
                   onClick={handleGenerate}
                   disabled={isButtonDisabled}
                 >
                   <RotateCw className="w-4 h-4 mr-2" />
-                  {isGenerating ? 'Generating...' : isLoadingCredits ? 'Loading...' : `Generate New (${GENERATE_COST} credits)`}
+                  <span className="hidden sm:inline">{isGenerating ? 'Generating...' : isLoadingCredits ? 'Loading...' : `Generate New (${GENERATE_COST})`}</span>
+                  <span className="sm:hidden">{isGenerating ? 'Gen...' : 'Generate'}</span>
                 </Button>
                 <Button 
                   variant="secondary" 
-                  className="flex-1"
+                  className="flex-1 text-xs sm:text-sm"
                   onClick={handleSaveToWiki}
                   disabled={saveCharacterMutation.isPending}
                 >
@@ -233,7 +234,7 @@ Trait: ${character.trait}
                 </Button>
                 <Button 
                   variant="secondary" 
-                  className="flex-1"
+                  className="flex-1 text-xs sm:text-sm"
                   onClick={handleCopyToClipboard}
                 >
                   <Copy className="w-4 h-4 mr-2" />
@@ -242,12 +243,12 @@ Trait: ${character.trait}
               </div>
             </div>
           ) : (
-            <div className="text-center space-y-6">
-              <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                <Sparkles className="w-10 h-10 text-primary" />
+            <div className="text-center space-y-4 sm:space-y-6">
+              <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                <Sparkles className="w-8 sm:w-10 h-8 sm:h-10 text-primary" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold mb-2">Create Your Character</h2>
+                <h2 className="text-2xl sm:text-3xl font-bold mb-2">Create Your Character</h2>
                 <p className="text-muted-foreground max-w-sm mx-auto">
                   Let AI generate a compelling character profile with unique traits, motivations, and backstory.
                 </p>

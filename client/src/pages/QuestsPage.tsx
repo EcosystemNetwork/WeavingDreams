@@ -110,30 +110,30 @@ export default function QuestsPage() {
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Header */}
       <header className="h-14 border-b border-border bg-card/50 backdrop-blur-sm px-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <Link href="/dashboard">
             <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary">
               <ArrowLeft className="w-5 h-5" />
             </Button>
           </Link>
           <div className="flex items-center gap-2">
-            <Gift className="w-5 h-5 text-primary" />
-            <h1 className="font-bold text-sm tracking-wide">Daily Quests</h1>
+            <Gift className="w-4 sm:w-5 h-4 sm:h-5 text-primary" />
+            <h1 className="font-bold text-xs sm:text-sm tracking-wide">Daily Quests</h1>
           </div>
         </div>
         
         {/* Credit Balance */}
-        <div className="flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 rounded-full border border-amber-500/30">
-          <Coins className="w-4 h-4 text-amber-400" />
-          <span className="font-bold text-amber-300">
+        <div className="flex items-center gap-2 px-2 sm:px-4 py-1.5 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 rounded-full border border-amber-500/30 flex-shrink-0">
+          <Coins className="w-3 sm:w-4 h-3 sm:h-4 text-amber-400" />
+          <span className="font-bold text-amber-300 text-xs sm:text-sm">
             {loadingCredits ? '...' : creditAccount?.balance ?? 0}
           </span>
-          <span className="text-xs text-amber-400/70">credits</span>
+          <span className="hidden sm:inline text-xs text-amber-400/70">credits</span>
         </div>
       </header>
 
       <div className="flex-1 overflow-auto">
-        <div className="max-w-4xl mx-auto p-6 space-y-6">
+        <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -167,13 +167,13 @@ export default function QuestsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
                       <div className="flex items-center gap-1.5">
-                        <Coins className="w-5 h-5 text-amber-400" />
-                        <span className="font-bold text-lg text-amber-300">
+                        <Coins className="w-4 sm:w-5 h-4 sm:h-5 text-amber-400" />
+                        <span className="font-bold text-base sm:text-lg text-amber-300">
                           10-40
                         </span>
-                        <span className="text-sm text-muted-foreground">credits</span>
+                        <span className="text-xs sm:text-sm text-muted-foreground">credits</span>
                       </div>
                       <span className="text-xs text-muted-foreground">
                         (more with longer streaks!)
@@ -198,11 +198,12 @@ export default function QuestsPage() {
               </Card>
 
               {/* Quest Reset Timer */}
-              <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground">
                 <span>Daily Quests</span>
                 <div className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4" />
-                  <span>Resets in {getTimeUntilReset()}</span>
+                  <Clock className="w-3 sm:w-4 h-3 sm:h-4" />
+                  <span className="hidden sm:inline">Resets in {getTimeUntilReset()}</span>
+                  <span className="sm:hidden">{getTimeUntilReset()}</span>
                 </div>
               </div>
 
@@ -236,40 +237,40 @@ export default function QuestsPage() {
                       >
                         <CardContent className="p-4">
                           <div className="flex items-start gap-4">
-                            <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+                            <div className={`w-10 sm:w-12 h-10 sm:h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${
                               quest.isCompleted 
                                 ? 'bg-green-500/20' 
                                 : 'bg-primary/10'
                             }`}>
-                              <IconComponent className={`w-6 h-6 ${
+                              <IconComponent className={`w-5 sm:w-6 h-5 sm:h-6 ${
                                 quest.isCompleted ? 'text-green-400' : 'text-primary'
                               }`} />
                             </div>
                             
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-start justify-between gap-2 mb-2">
-                                <div>
-                                  <h3 className="font-semibold">{quest.quest.name}</h3>
-                                  <p className="text-sm text-muted-foreground">
+                              <div className="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-1 sm:gap-2 mb-2">
+                                <div className="flex-1">
+                                  <h3 className="font-semibold text-sm">{quest.quest.name}</h3>
+                                  <p className="text-xs sm:text-sm text-muted-foreground">
                                     {quest.quest.description}
                                   </p>
                                 </div>
                                 <div className="flex items-center gap-1.5 flex-shrink-0">
-                                  <Coins className="w-4 h-4 text-amber-400" />
-                                  <span className="font-bold text-amber-300">
+                                  <Coins className="w-3 sm:w-4 h-3 sm:h-4 text-amber-400" />
+                                  <span className="font-bold text-xs sm:text-sm text-amber-300">
                                     +{quest.quest.rewardCredits}
                                   </span>
                                 </div>
                               </div>
                               
-                              <div className="flex items-center gap-3">
-                                <div className="flex-1">
+                              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
+                                <div className="flex-1 w-full">
                                   <Progress 
                                     value={progressPercent} 
                                     className="h-2"
                                   />
                                 </div>
-                                <span className="text-xs text-muted-foreground min-w-[60px] text-right">
+                                <span className="text-xs text-muted-foreground min-w-[50px] sm:min-w-[60px] text-right">
                                   {quest.progress}/{quest.quest.requirement}
                                 </span>
                                 
@@ -310,24 +311,24 @@ export default function QuestsPage() {
                   <CardTitle className="text-sm">Your Stats</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-3 gap-4 text-center">
+                  <div className="grid grid-cols-3 gap-2 sm:gap-4 text-center">
                     <div>
-                      <div className="text-2xl font-bold text-primary">
+                      <div className="text-xl sm:text-2xl font-bold text-primary">
                         {creditAccount?.balance ?? 0}
                       </div>
-                      <div className="text-xs text-muted-foreground">Current Balance</div>
+                      <div className="text-xs text-muted-foreground">Balance</div>
                     </div>
                     <div>
-                      <div className="text-2xl font-bold text-green-400">
+                      <div className="text-xl sm:text-2xl font-bold text-green-400">
                         {creditAccount?.totalEarned ?? 0}
                       </div>
-                      <div className="text-xs text-muted-foreground">Total Earned</div>
+                      <div className="text-xs text-muted-foreground">Earned</div>
                     </div>
                     <div>
-                      <div className="text-2xl font-bold text-amber-400">
+                      <div className="text-xl sm:text-2xl font-bold text-amber-400">
                         {creditAccount?.totalSpent ?? 0}
                       </div>
-                      <div className="text-xs text-muted-foreground">Total Spent</div>
+                      <div className="text-xs text-muted-foreground">Spent</div>
                     </div>
                   </div>
                 </CardContent>

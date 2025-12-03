@@ -88,25 +88,25 @@ export default function WikiPage() {
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* Header */}
       <header className="h-14 border-b border-border bg-card/50 backdrop-blur-sm px-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <Link href="/dashboard">
             <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary">
               <ArrowLeft className="w-5 h-5" />
             </Button>
           </Link>
           <div className="flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-primary" />
-            <h1 className="font-bold text-sm tracking-wide">Story Wiki</h1>
+            <BookOpen className="w-4 sm:w-5 h-4 sm:h-5 text-primary" />
+            <h1 className="font-bold text-xs sm:text-sm tracking-wide">Story Wiki</h1>
           </div>
         </div>
-        <div className="text-xs text-muted-foreground">
+        <div className="text-xs text-muted-foreground hidden sm:block">
           {characters.length} Characters • {environments.length} Environments • {props.length} Props
         </div>
       </header>
 
       <div className="flex-1 overflow-hidden flex">
         {/* Main Content */}
-        <div className="flex-1 overflow-auto p-8">
+        <div className="flex-1 overflow-auto p-4 sm:p-8">
           {isLoading ? (
             <div className="flex items-center justify-center h-64">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -130,13 +130,13 @@ export default function WikiPage() {
 
               <TabsContent value="characters" className="space-y-6">
                 {selectedCharacter ? (
-                  <div className="space-y-6">
-                    <div className="text-center mb-8">
-                      <h2 className="text-4xl font-bold mb-2">{selectedCharacter.name}</h2>
+                  <div className="space-y-4 sm:space-y-6">
+                    <div className="text-center mb-4 sm:mb-8">
+                      <h2 className="text-2xl sm:text-4xl font-bold mb-2">{selectedCharacter.name}</h2>
                       <Badge className="bg-primary/20 text-primary border-primary/30">{selectedCharacter.archetype}</Badge>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       <Card className="border-white/5">
                         <CardHeader className="pb-2">
                           <CardTitle className="text-sm">Background</CardTitle>
@@ -183,13 +183,13 @@ export default function WikiPage() {
                       </CardContent>
                     </Card>
 
-                    <div className="flex gap-3">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                       <Button onClick={() => setSelectedCharacter(null)} variant="outline" className="flex-1">
                         Back to List
                       </Button>
                       <Button onClick={() => handleCopyCharacter(selectedCharacter)} variant="secondary" className="flex-1">
                         <Copy className="w-4 h-4 mr-2" />
-                        Copy
+                        <span className="hidden sm:inline">Copy</span>
                       </Button>
                       <Button 
                         onClick={() => deleteCharacterMutation.mutate(selectedCharacter.id)}
@@ -202,7 +202,7 @@ export default function WikiPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     {characters.length === 0 ? (
                       <div className="col-span-3 text-center py-12 text-muted-foreground">
                         <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
@@ -231,9 +231,9 @@ export default function WikiPage() {
 
               <TabsContent value="environments" className="space-y-6">
                 {selectedEnv ? (
-                  <div className="space-y-6">
-                    <div className="text-center mb-8">
-                      <h2 className="text-4xl font-bold mb-2">{selectedEnv.name}</h2>
+                  <div className="space-y-4 sm:space-y-6">
+                    <div className="text-center mb-4 sm:mb-8">
+                      <h2 className="text-2xl sm:text-4xl font-bold mb-2">{selectedEnv.name}</h2>
                       <Badge className="bg-primary/20 text-primary border-primary/30">{selectedEnv.type}</Badge>
                     </div>
 
@@ -264,13 +264,13 @@ export default function WikiPage() {
                       </CardContent>
                     </Card>
 
-                    <div className="flex gap-3">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                       <Button onClick={() => setSelectedEnv(null)} variant="outline" className="flex-1">
                         Back to List
                       </Button>
                       <Button onClick={() => handleCopyEnvironment(selectedEnv)} variant="secondary" className="flex-1">
                         <Copy className="w-4 h-4 mr-2" />
-                        Copy
+                        <span className="hidden sm:inline">Copy</span>
                       </Button>
                       <Button 
                         onClick={() => deleteEnvironmentMutation.mutate(selectedEnv.id)}
@@ -283,7 +283,7 @@ export default function WikiPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     {environments.length === 0 ? (
                       <div className="col-span-3 text-center py-12 text-muted-foreground">
                         <MapPin className="w-12 h-12 mx-auto mb-4 opacity-50" />
@@ -312,9 +312,9 @@ export default function WikiPage() {
 
               <TabsContent value="props" className="space-y-6">
                 {selectedProp ? (
-                  <div className="space-y-6">
-                    <div className="text-center mb-8">
-                      <h2 className="text-4xl font-bold mb-2">{selectedProp.name}</h2>
+                  <div className="space-y-4 sm:space-y-6">
+                    <div className="text-center mb-4 sm:mb-8">
+                      <h2 className="text-2xl sm:text-4xl font-bold mb-2">{selectedProp.name}</h2>
                       <Badge className="bg-primary/20 text-primary border-primary/30">{selectedProp.category}</Badge>
                     </div>
 
@@ -345,13 +345,13 @@ export default function WikiPage() {
                       </CardContent>
                     </Card>
 
-                    <div className="flex gap-3">
+                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                       <Button onClick={() => setSelectedProp(null)} variant="outline" className="flex-1">
                         Back to List
                       </Button>
                       <Button onClick={() => handleCopyProp(selectedProp)} variant="secondary" className="flex-1">
                         <Copy className="w-4 h-4 mr-2" />
-                        Copy
+                        <span className="hidden sm:inline">Copy</span>
                       </Button>
                       <Button 
                         onClick={() => deletePropMutation.mutate(selectedProp.id)}
@@ -364,7 +364,7 @@ export default function WikiPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     {props.length === 0 ? (
                       <div className="col-span-3 text-center py-12 text-muted-foreground">
                         <Box className="w-12 h-12 mx-auto mb-4 opacity-50" />
