@@ -239,3 +239,14 @@ export const insertUserDailyQuestSchema = createInsertSchema(userDailyQuests).om
 });
 export type InsertUserDailyQuest = z.infer<typeof insertUserDailyQuestSchema>;
 export type UserDailyQuest = typeof userDailyQuests.$inferSelect;
+
+// Generation sessions table - tracks AI generation time
+export const generationSessions = pgTable("generation_sessions", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  type: varchar("type", { length: 50 }).notNull(), // 'character', 'environment', 'prop'
+  durationSeconds: integer("duration_seconds").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export type GenerationSession = typeof generationSessions.$inferSelect;

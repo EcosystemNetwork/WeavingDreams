@@ -9,6 +9,7 @@ import {
   userDailyQuests,
   badges,
   userBadges,
+  generationSessions,
   type User,
   type UpsertUser,
   type Character,
@@ -26,6 +27,7 @@ import {
   type UserDailyQuest,
   type Badge,
   type UserBadgeWithDetails,
+  type GenerationSession,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
@@ -72,6 +74,11 @@ export interface IStorage {
   updateQuestProgress(userId: string, questType: string, increment?: number): Promise<void>;
   claimQuestReward(userId: string, questId: number): Promise<CreditAccount>;
   claimDailyLoginReward(userId: string): Promise<{ credits: number; streak: number } | null>;
+
+  // Generation and badge operations
+  logGenerationSession(userId: string, type: string, durationSeconds: number): Promise<void>;
+  getTotalGenerationSeconds(userId: string): Promise<number>;
+  awardBadgeIfEarned(userId: string, badgeId: number): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -542,6 +549,38 @@ export class DatabaseStorage implements IStorage {
 
       return { credits: reward, streak: 1 };
     }
+  }
+
+  async logGenerationSession(userId: string, type: string, durationSeconds: number): Promise<void> {
+    await db.insert(generationSessions).values({
+      userId,
+      type,
+      durationSeconds,
+    });
+  }
+
+  async getTotalGenerationSeconds(userId: string): Promise<number> {
+    const result = await db
+      .select({ total: sql<number>`COALESCE(SUM(duration_seconds), 0)` })
+      .from(generationSessions)
+      .where(eq(generationSessions.userId, userId));
+    return result[0]?.total ?? 0;
+  }
+
+  async awardBadgeIfEarned(userId: string, badgeId: number): Promise<boolean> {
+    const existing = await db
+      .select()
+      .from(userBadges)
+      .where(and(eq(userBadges.userId, userId), eq(userBadges.badgeId, badgeId)));
+    
+    if (existing.length === 0) {
+      await db.insert(userBadges).values({
+        userId,
+        badgeId,
+      });
+      return true;
+    }
+    return false;
   }
 }
 

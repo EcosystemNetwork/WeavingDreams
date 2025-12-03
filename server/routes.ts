@@ -6,6 +6,7 @@ import {
   insertCharacterSchema, insertEnvironmentSchema, insertPropSchema,
   updateCharacterSchema, updateEnvironmentSchema, updatePropSchema
 } from "@shared/schema";
+import { GENERATION_TIME_BADGES } from "./badgeConstants";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -40,6 +41,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims.sub;
       const validatedData = insertCharacterSchema.parse({ ...req.body, userId });
       const character = await storage.createCharacter(validatedData);
+      
+      // Track generation time (10 seconds for character generation)
+      await storage.logGenerationSession(userId, 'character', 10);
+      
+      // Check for badge milestones
+      const totalSeconds = await storage.getTotalGenerationSeconds(userId);
+      for (const badge of Object.values(GENERATION_TIME_BADGES)) {
+        if (totalSeconds >= badge.threshold) {
+          await storage.awardBadgeIfEarned(userId, badge.id);
+        }
+      }
+      
       res.status(201).json(character);
     } catch (error) {
       console.error("Error creating character:", error);
