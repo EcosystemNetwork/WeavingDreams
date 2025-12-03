@@ -7,6 +7,7 @@ import {
   updateCharacterSchema, updateEnvironmentSchema, updatePropSchema
 } from "@shared/schema";
 import { GENERATION_TIME_BADGES } from "./badgeConstants";
+import { generateCharacterImage, generateCharacterProfile } from "./kieAi";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -85,6 +86,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting character:", error);
       res.status(500).json({ message: "Failed to delete character" });
+    }
+  });
+
+  // Kie AI - Generate character profile
+  app.post('/api/kie-ai/generate-character', isAuthenticated, async (req: any, res) => {
+    try {
+      const profile = await generateCharacterProfile();
+      res.json(profile);
+    } catch (error) {
+      console.error("Error generating character profile:", error);
+      res.status(500).json({ message: "Failed to generate character profile" });
+    }
+  });
+
+  // Kie AI - Generate character image
+  app.post('/api/kie-ai/generate-image', isAuthenticated, async (req: any, res) => {
+    try {
+      const { name, archetype, personality, background } = req.body;
+      
+      if (!name || !archetype) {
+        return res.status(400).json({ message: "Name and archetype are required" });
+      }
+
+      const imageUrl = await generateCharacterImage({
+        name,
+        archetype,
+        personality: personality || "",
+        background: background || "",
+      });
+
+      res.json({ imageUrl });
+    } catch (error) {
+      console.error("Error generating character image:", error);
+      res.status(500).json({ message: "Failed to generate character image" });
     }
   });
 

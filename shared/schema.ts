@@ -87,6 +87,7 @@ export const characters = pgTable("characters", {
   motivation: text("motivation").notNull(),
   flaw: text("flaw").notNull(),
   trait: text("trait").notNull(),
+  imageUrl: text("image_url"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
