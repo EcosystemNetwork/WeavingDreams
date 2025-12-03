@@ -50,6 +50,11 @@ Preferred communication style: Simple, everyday language.
 - Users table stores authentication data from Replit Auth
 - Characters, Environments, and Props tables store user-generated world-building content with foreign key relationships to users
 - Sessions table managed by connect-pg-simple for session persistence
+- GalleryItems and GalleryLikes tables for Community Gallery feature
+- NarrativeProjects and NarrativeContributions tables for Dimensions marketplace
+- CreditAccounts and CreditTransactions for gamification economy
+- QuestTemplates and UserDailyQuests for quest system
+- Badges and UserBadges for achievement tracking
 - All content tables include user ownership via userId foreign key for data isolation
 
 **Migrations**: Drizzle Kit manages database schema migrations with configuration pointing to PostgreSQL dialect.
@@ -68,11 +73,19 @@ Preferred communication style: Simple, everyday language.
 
 ### AI Integration
 
-**Mock Implementation**: Current AI features use simulated responses from `mockAi.ts` service. This provides the interface for future integration with actual AI providers.
+**Kie AI (Gemini)**: AI features powered by Google's Gemini API through Replit AI Integrations.
 
-**Features**: Character generation, story continuation suggestions, narrative choices, and world-building element creation.
+**Models Used**:
+- gemini-2.5-flash: Text generation for character profiles, story content
+- gemini-2.5-flash-preview-05-20: Image generation for character portraits
 
-**Future Integration**: Architecture supports swapping mock service with real AI API calls (OpenAI, Google Generative AI, or similar) without changing application logic.
+**Features**: 
+- Character profile generation (name, archetype, background, personality, motivation, flaw, traits)
+- Character image generation using Gemini's image model
+- Story continuation suggestions
+- Narrative choices and branching
+
+**Cost**: Character generation costs 10 credits per use. Environments and props are free.
 
 ## External Dependencies
 

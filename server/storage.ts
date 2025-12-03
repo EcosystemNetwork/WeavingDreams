@@ -10,6 +10,10 @@ import {
   badges,
   userBadges,
   generationSessions,
+  galleryItems,
+  galleryLikes,
+  narrativeProjects,
+  narrativeContributions,
   type User,
   type UpsertUser,
   type Character,
@@ -28,6 +32,13 @@ import {
   type Badge,
   type UserBadgeWithDetails,
   type GenerationSession,
+  type GalleryItem,
+  type InsertGalleryItem,
+  type GalleryLike,
+  type NarrativeProject,
+  type InsertNarrativeProject,
+  type NarrativeContribution,
+  type InsertNarrativeContribution,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, sql } from "drizzle-orm";
@@ -79,6 +90,24 @@ export interface IStorage {
   logGenerationSession(userId: string, type: string, durationSeconds: number): Promise<void>;
   getTotalGenerationSeconds(userId: string): Promise<number>;
   awardBadgeIfEarned(userId: string, badgeId: number): Promise<boolean>;
+
+  // Community Gallery operations
+  getPublicGalleryItems(): Promise<(GalleryItem & { user?: { firstName: string | null; lastName: string | null; profileImageUrl: string | null } })[]>;
+  getUserGalleryItems(userId: string): Promise<GalleryItem[]>;
+  createGalleryItem(item: InsertGalleryItem): Promise<GalleryItem>;
+  deleteGalleryItem(id: number, userId: string): Promise<void>;
+  likeGalleryItem(userId: string, itemId: number): Promise<void>;
+  unlikeGalleryItem(userId: string, itemId: number): Promise<void>;
+  getUserLikes(userId: string): Promise<number[]>;
+  incrementGalleryViews(id: number): Promise<void>;
+
+  // Narrative Projects (Dimensions) operations
+  getAllNarrativeProjects(): Promise<(NarrativeProject & { user?: { firstName: string | null; lastName: string | null } })[]>;
+  getUserNarrativeProjects(userId: string): Promise<NarrativeProject[]>;
+  getNarrativeProject(id: number): Promise<NarrativeProject | undefined>;
+  createNarrativeProject(project: InsertNarrativeProject): Promise<NarrativeProject>;
+  contributeToProject(userId: string, projectId: number, amount: number): Promise<NarrativeProject>;
+  getUserContributions(userId: string): Promise<(NarrativeContribution & { project: NarrativeProject })[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -581,6 +610,191 @@ export class DatabaseStorage implements IStorage {
       return true;
     }
     return false;
+  }
+
+  // Community Gallery operations
+  async getPublicGalleryItems(): Promise<(GalleryItem & { user?: { firstName: string | null; lastName: string | null; profileImageUrl: string | null } })[]> {
+    return await db
+      .select({
+        id: galleryItems.id,
+        userId: galleryItems.userId,
+        itemType: galleryItems.itemType,
+        itemId: galleryItems.itemId,
+        title: galleryItems.title,
+        description: galleryItems.description,
+        imageUrl: galleryItems.imageUrl,
+        likes: galleryItems.likes,
+        views: galleryItems.views,
+        isPublic: galleryItems.isPublic,
+        isFeatured: galleryItems.isFeatured,
+        createdAt: galleryItems.createdAt,
+        user: {
+          firstName: users.firstName,
+          lastName: users.lastName,
+          profileImageUrl: users.profileImageUrl,
+        },
+      })
+      .from(galleryItems)
+      .innerJoin(users, eq(galleryItems.userId, users.id))
+      .where(eq(galleryItems.isPublic, true))
+      .orderBy(desc(galleryItems.createdAt));
+  }
+
+  async getUserGalleryItems(userId: string): Promise<GalleryItem[]> {
+    return await db
+      .select()
+      .from(galleryItems)
+      .where(eq(galleryItems.userId, userId))
+      .orderBy(desc(galleryItems.createdAt));
+  }
+
+  async createGalleryItem(item: InsertGalleryItem): Promise<GalleryItem> {
+    const [newItem] = await db
+      .insert(galleryItems)
+      .values(item)
+      .returning();
+    return newItem;
+  }
+
+  async deleteGalleryItem(id: number, userId: string): Promise<void> {
+    await db
+      .delete(galleryLikes)
+      .where(eq(galleryLikes.galleryItemId, id));
+    await db
+      .delete(galleryItems)
+      .where(and(eq(galleryItems.id, id), eq(galleryItems.userId, userId)));
+  }
+
+  async likeGalleryItem(userId: string, itemId: number): Promise<void> {
+    await db.insert(galleryLikes).values({ userId, galleryItemId: itemId }).onConflictDoNothing();
+    await db
+      .update(galleryItems)
+      .set({ likes: sql`${galleryItems.likes} + 1` })
+      .where(eq(galleryItems.id, itemId));
+  }
+
+  async unlikeGalleryItem(userId: string, itemId: number): Promise<void> {
+    const [deleted] = await db
+      .delete(galleryLikes)
+      .where(and(eq(galleryLikes.userId, userId), eq(galleryLikes.galleryItemId, itemId)))
+      .returning();
+    if (deleted) {
+      await db
+        .update(galleryItems)
+        .set({ likes: sql`GREATEST(${galleryItems.likes} - 1, 0)` })
+        .where(eq(galleryItems.id, itemId));
+    }
+  }
+
+  async getUserLikes(userId: string): Promise<number[]> {
+    const likes = await db
+      .select({ galleryItemId: galleryLikes.galleryItemId })
+      .from(galleryLikes)
+      .where(eq(galleryLikes.userId, userId));
+    return likes.map(l => l.galleryItemId);
+  }
+
+  async incrementGalleryViews(id: number): Promise<void> {
+    await db
+      .update(galleryItems)
+      .set({ views: sql`${galleryItems.views} + 1` })
+      .where(eq(galleryItems.id, id));
+  }
+
+  // Narrative Projects (Dimensions) operations
+  async getAllNarrativeProjects(): Promise<(NarrativeProject & { user?: { firstName: string | null; lastName: string | null } })[]> {
+    return await db
+      .select({
+        id: narrativeProjects.id,
+        userId: narrativeProjects.userId,
+        title: narrativeProjects.title,
+        description: narrativeProjects.description,
+        narrativeType: narrativeProjects.narrativeType,
+        fundingGoal: narrativeProjects.fundingGoal,
+        currentFunding: narrativeProjects.currentFunding,
+        backerCount: narrativeProjects.backerCount,
+        imageUrl: narrativeProjects.imageUrl,
+        status: narrativeProjects.status,
+        createdAt: narrativeProjects.createdAt,
+        updatedAt: narrativeProjects.updatedAt,
+        user: {
+          firstName: users.firstName,
+          lastName: users.lastName,
+        },
+      })
+      .from(narrativeProjects)
+      .innerJoin(users, eq(narrativeProjects.userId, users.id))
+      .orderBy(desc(narrativeProjects.createdAt));
+  }
+
+  async getUserNarrativeProjects(userId: string): Promise<NarrativeProject[]> {
+    return await db
+      .select()
+      .from(narrativeProjects)
+      .where(eq(narrativeProjects.userId, userId))
+      .orderBy(desc(narrativeProjects.createdAt));
+  }
+
+  async getNarrativeProject(id: number): Promise<NarrativeProject | undefined> {
+    const [project] = await db
+      .select()
+      .from(narrativeProjects)
+      .where(eq(narrativeProjects.id, id));
+    return project;
+  }
+
+  async createNarrativeProject(project: InsertNarrativeProject): Promise<NarrativeProject> {
+    const [newProject] = await db
+      .insert(narrativeProjects)
+      .values(project)
+      .returning();
+    return newProject;
+  }
+
+  async contributeToProject(userId: string, projectId: number, amount: number): Promise<NarrativeProject> {
+    const account = await this.getOrCreateCreditAccount(userId);
+    if (account.balance < amount) {
+      throw new Error('Insufficient credits');
+    }
+
+    await this.adjustCredits(userId, -amount, 'spend', 'project_contribution', `Contributed to narrative project`);
+
+    await db.insert(narrativeContributions).values({
+      userId,
+      projectId,
+      amount,
+    });
+
+    const [updated] = await db
+      .update(narrativeProjects)
+      .set({
+        currentFunding: sql`${narrativeProjects.currentFunding} + ${amount}`,
+        backerCount: sql`${narrativeProjects.backerCount} + 1`,
+        status: sql`CASE WHEN ${narrativeProjects.currentFunding} + ${amount} >= ${narrativeProjects.fundingGoal} THEN 'funded' ELSE ${narrativeProjects.status} END`,
+        updatedAt: new Date(),
+      })
+      .where(eq(narrativeProjects.id, projectId))
+      .returning();
+
+    return updated;
+  }
+
+  async getUserContributions(userId: string): Promise<(NarrativeContribution & { project: NarrativeProject })[]> {
+    const contributions = await db
+      .select({
+        id: narrativeContributions.id,
+        userId: narrativeContributions.userId,
+        projectId: narrativeContributions.projectId,
+        amount: narrativeContributions.amount,
+        createdAt: narrativeContributions.createdAt,
+        project: narrativeProjects,
+      })
+      .from(narrativeContributions)
+      .innerJoin(narrativeProjects, eq(narrativeContributions.projectId, narrativeProjects.id))
+      .where(eq(narrativeContributions.userId, userId))
+      .orderBy(desc(narrativeContributions.createdAt));
+
+    return contributions;
   }
 }
 

@@ -4,7 +4,8 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { 
   insertCharacterSchema, insertEnvironmentSchema, insertPropSchema,
-  updateCharacterSchema, updateEnvironmentSchema, updatePropSchema
+  updateCharacterSchema, updateEnvironmentSchema, updatePropSchema,
+  insertGalleryItemSchema, insertNarrativeProjectSchema
 } from "@shared/schema";
 import { GENERATION_TIME_BADGES } from "./badgeConstants";
 import { generateCharacterImage, generateCharacterProfile } from "./kieAi";
@@ -389,6 +390,164 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching badges:", error);
       res.status(500).json({ message: "Failed to fetch badges" });
+    }
+  });
+
+  // Community Gallery routes
+  app.get('/api/gallery', async (req, res) => {
+    try {
+      const items = await storage.getPublicGalleryItems();
+      res.json(items);
+    } catch (error) {
+      console.error("Error fetching gallery:", error);
+      res.status(500).json({ message: "Failed to fetch gallery" });
+    }
+  });
+
+  app.get('/api/gallery/my', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const items = await storage.getUserGalleryItems(userId);
+      res.json(items);
+    } catch (error) {
+      console.error("Error fetching user gallery items:", error);
+      res.status(500).json({ message: "Failed to fetch gallery items" });
+    }
+  });
+
+  app.get('/api/gallery/likes', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const likes = await storage.getUserLikes(userId);
+      res.json(likes);
+    } catch (error) {
+      console.error("Error fetching user likes:", error);
+      res.status(500).json({ message: "Failed to fetch likes" });
+    }
+  });
+
+  app.post('/api/gallery', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const validatedData = insertGalleryItemSchema.parse({ ...req.body, userId });
+      const item = await storage.createGalleryItem(validatedData);
+      res.status(201).json(item);
+    } catch (error) {
+      console.error("Error publishing to gallery:", error);
+      res.status(400).json({ message: "Failed to publish to gallery" });
+    }
+  });
+
+  app.delete('/api/gallery/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const id = parseInt(req.params.id);
+      await storage.deleteGalleryItem(id, userId);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting gallery item:", error);
+      res.status(500).json({ message: "Failed to delete gallery item" });
+    }
+  });
+
+  app.post('/api/gallery/:id/like', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const id = parseInt(req.params.id);
+      await storage.likeGalleryItem(userId, id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error liking gallery item:", error);
+      res.status(500).json({ message: "Failed to like item" });
+    }
+  });
+
+  app.delete('/api/gallery/:id/like', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const id = parseInt(req.params.id);
+      await storage.unlikeGalleryItem(userId, id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error unliking gallery item:", error);
+      res.status(500).json({ message: "Failed to unlike item" });
+    }
+  });
+
+  app.post('/api/gallery/:id/view', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.incrementGalleryViews(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error incrementing views:", error);
+      res.status(500).json({ message: "Failed to increment views" });
+    }
+  });
+
+  // Narrative Projects (Dimensions) routes
+  app.get('/api/projects', async (req, res) => {
+    try {
+      const projects = await storage.getAllNarrativeProjects();
+      res.json(projects);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+      res.status(500).json({ message: "Failed to fetch projects" });
+    }
+  });
+
+  app.get('/api/projects/my', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const projects = await storage.getUserNarrativeProjects(userId);
+      res.json(projects);
+    } catch (error) {
+      console.error("Error fetching user projects:", error);
+      res.status(500).json({ message: "Failed to fetch projects" });
+    }
+  });
+
+  app.get('/api/projects/contributions', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const contributions = await storage.getUserContributions(userId);
+      res.json(contributions);
+    } catch (error) {
+      console.error("Error fetching contributions:", error);
+      res.status(500).json({ message: "Failed to fetch contributions" });
+    }
+  });
+
+  app.post('/api/projects', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const validatedData = insertNarrativeProjectSchema.parse({ ...req.body, userId });
+      const project = await storage.createNarrativeProject(validatedData);
+      res.status(201).json(project);
+    } catch (error) {
+      console.error("Error creating project:", error);
+      res.status(400).json({ message: "Failed to create project" });
+    }
+  });
+
+  app.post('/api/projects/:id/contribute', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const projectId = parseInt(req.params.id);
+      const { amount } = req.body;
+      
+      if (!amount || amount <= 0) {
+        return res.status(400).json({ message: "Invalid contribution amount" });
+      }
+      
+      const project = await storage.contributeToProject(userId, projectId, amount);
+      res.json(project);
+    } catch (error: any) {
+      console.error("Error contributing to project:", error);
+      if (error.message === 'Insufficient credits') {
+        return res.status(400).json({ message: "Insufficient credits" });
+      }
+      res.status(500).json({ message: "Failed to contribute to project" });
     }
   });
 

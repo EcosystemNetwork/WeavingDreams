@@ -24,6 +24,7 @@ import MediaHubPage from "@/pages/MediaHubPage";
 import FilmsPage from "@/pages/FilmsPage";
 import GamesPage from "@/pages/GamesPage";
 import ShortsPage from "@/pages/ShortsPage";
+import GalleryPage from "@/pages/GalleryPage";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -66,6 +67,7 @@ function Router() {
       <Route path="/games" component={GamesPage} />
       <Route path="/shorts" component={ShortsPage} />
       <Route path="/dimensions" component={DimensionsPage} />
+      <Route path="/gallery" component={GalleryPage} />
 
       {/* Protected routes */}
       <Route path="/dashboard">

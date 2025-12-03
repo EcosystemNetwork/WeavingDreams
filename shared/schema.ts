@@ -251,3 +251,86 @@ export const generationSessions = pgTable("generation_sessions", {
 });
 
 export type GenerationSession = typeof generationSessions.$inferSelect;
+
+// Community Gallery - published works for sharing
+export const galleryItems = pgTable("gallery_items", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  itemType: varchar("item_type", { length: 50 }).notNull(), // 'character', 'environment', 'prop'
+  itemId: integer("item_id").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  imageUrl: text("image_url"),
+  likes: integer("likes").notNull().default(0),
+  views: integer("views").notNull().default(0),
+  isPublic: boolean("is_public").notNull().default(true),
+  isFeatured: boolean("is_featured").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertGalleryItemSchema = createInsertSchema(galleryItems).omit({
+  id: true,
+  likes: true,
+  views: true,
+  createdAt: true,
+});
+export type InsertGalleryItem = z.infer<typeof insertGalleryItemSchema>;
+export type GalleryItem = typeof galleryItems.$inferSelect;
+
+// Gallery likes - track who liked what
+export const galleryLikes = pgTable(
+  "gallery_likes",
+  {
+    id: serial("id").primaryKey(),
+    userId: varchar("user_id").notNull().references(() => users.id),
+    galleryItemId: integer("gallery_item_id").notNull().references(() => galleryItems.id),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("gallery_like_idx").on(table.userId, table.galleryItemId),
+  ]
+);
+
+export type GalleryLike = typeof galleryLikes.$inferSelect;
+
+// Dimensions - Narrative marketplace for crowdfunding
+export const narrativeProjects = pgTable("narrative_projects", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  narrativeType: varchar("narrative_type", { length: 50 }).notNull(), // 'film', 'game'
+  fundingGoal: integer("funding_goal").notNull(),
+  currentFunding: integer("current_funding").notNull().default(0),
+  backerCount: integer("backer_count").notNull().default(0),
+  imageUrl: text("image_url"),
+  status: varchar("status", { length: 50 }).notNull().default("active"), // 'active', 'funded', 'completed'
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertNarrativeProjectSchema = createInsertSchema(narrativeProjects).omit({
+  id: true,
+  currentFunding: true,
+  backerCount: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertNarrativeProject = z.infer<typeof insertNarrativeProjectSchema>;
+export type NarrativeProject = typeof narrativeProjects.$inferSelect;
+
+// Narrative contributions - investments in projects
+export const narrativeContributions = pgTable("narrative_contributions", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  projectId: integer("project_id").notNull().references(() => narrativeProjects.id),
+  amount: integer("amount").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertNarrativeContributionSchema = createInsertSchema(narrativeContributions).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertNarrativeContribution = z.infer<typeof insertNarrativeContributionSchema>;
+export type NarrativeContribution = typeof narrativeContributions.$inferSelect;

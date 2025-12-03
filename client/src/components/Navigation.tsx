@@ -36,7 +36,8 @@ import {
   Users,
   Mountain,
   Box,
-  Wand2
+  Wand2,
+  Image
 } from 'lucide-react';
 import type { CreditAccount } from '@shared/schema';
 
@@ -67,6 +68,7 @@ export function Navigation({
   const publicNavItems = [
     { href: '/media', icon: Play, label: 'Media', testId: 'button-media' },
     { href: '/dimensions', icon: Layers, label: 'Dimensions', testId: 'button-dimensions' },
+    { href: '/gallery', icon: Image, label: 'Gallery', testId: 'button-gallery' },
   ];
 
   const creationItems = [
