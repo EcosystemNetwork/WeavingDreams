@@ -61,10 +61,17 @@ The build process:
 ## Troubleshooting
 
 ### Download Issue Fixed
-The download issue was caused by improper MIME types. This is now fixed with:
-- Proper Content-Type headers in static file serving
-- Correct routing configuration in `vercel.json`
-- SPA fallback to `index.html`
+The download issue was caused by missing Content-Type headers. This is now fixed with:
+- **Explicit Content-Type headers** in `vercel.json` for HTML, JS, and CSS files
+- **`_headers` file** in `client/public` that ensures proper MIME types
+- **Correct routing configuration** that excludes static files from SPA rewrites
+- **Proper rewrite pattern** that only applies to non-file routes
+
+**Key fixes:**
+- Added `Content-Type: text/html; charset=utf-8` for all HTML files
+- Added `Content-Type: application/javascript; charset=utf-8` for JS files
+- Added `Content-Type: text/css; charset=utf-8` for CSS files
+- Fixed rewrite pattern to exclude files with extensions (e.g., `.js`, `.css`, `.png`)
 
 ### Build Errors
 - Ensure `DATABASE_URL` is set before building
