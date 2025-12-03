@@ -7,7 +7,7 @@ import { Navigation } from '@/components/Navigation';
 export default function MediaHubPage() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <Navigation title="Media Center" showBackButton={true} backHref="/" showNavButtons={true} />
+      <Navigation title="Media Hub" showBackButton={true} backHref="/" showNavButtons={true} />
 
       <div className="flex-1 overflow-auto p-8">
         <div className="max-w-6xl mx-auto space-y-12">

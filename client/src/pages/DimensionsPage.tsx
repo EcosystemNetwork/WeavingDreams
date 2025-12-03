@@ -153,7 +153,7 @@ export default function DimensionsPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <Navigation title="DIMENSIONS" showBackButton={true} backHref="/" showNavButtons={true} />
+      <Navigation title="Dimensions" showBackButton={true} backHref="/" showNavButtons={true} />
       
       <div className="border-b border-border/50 bg-card/30 px-6 py-2 flex items-center justify-end">
         <Button onClick={() => setIsCreating(!isCreating)} className="h-10">

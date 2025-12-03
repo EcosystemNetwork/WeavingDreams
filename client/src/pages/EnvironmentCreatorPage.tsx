@@ -114,7 +114,7 @@ export default function EnvironmentCreatorPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <Navigation title="Environment Creator" showBackButton={true} backHref="/narrative-studio" showNavButtons={false} />
+      <Navigation title="Environment Creator" showBackButton={true} backHref="/narrative-studio" showNavButtons={true} />
 
       <div className="flex-1 overflow-hidden flex">
         {/* Main Editor */}
