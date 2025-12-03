@@ -4,8 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Plus, TrendingUp, ArrowUpRight, ArrowDownRight } from 'lucide-react';
-import { Link } from 'wouter';
+import { Plus, TrendingUp, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Navigation } from '@/components/Navigation';
 import { useToast } from '@/hooks/use-toast';
 
 interface Narrative {
@@ -153,26 +153,14 @@ export default function DimensionsPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      {/* Header */}
-      <header className="h-16 border-b border-border/50 bg-gradient-to-r from-primary/10 via-background to-background backdrop-blur-sm px-6 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-3">
-          <Link href="/">
-            <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-          <div className="py-1">
-            <h1 className="font-black text-2xl tracking-tight leading-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/50">
-              DIMENSIONS
-            </h1>
-            <p className="text-xs text-muted-foreground">Narrative Funding</p>
-          </div>
-        </div>
+      <Navigation title="DIMENSIONS" showBackButton={true} backHref="/" showNavButtons={true} />
+      
+      <div className="border-b border-border/50 bg-card/30 px-6 py-2 flex items-center justify-end">
         <Button onClick={() => setIsCreating(!isCreating)} className="h-10">
           <Plus className="w-4 h-4 mr-2" />
           Launch Narrative
         </Button>
-      </header>
+      </div>
 
       {/* Stats */}
       <div className="border-b border-border/30 bg-card/30 backdrop-blur-sm px-6 py-4">

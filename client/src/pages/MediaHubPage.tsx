@@ -1,22 +1,13 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { ArrowLeft, Film, Gamepad2, Video, ArrowRight } from 'lucide-react';
+import { Film, Gamepad2, Video, ArrowRight } from 'lucide-react';
 import { Link } from 'wouter';
+import { Navigation } from '@/components/Navigation';
 
 export default function MediaHubPage() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      {/* Header */}
-      <header className="h-14 border-b border-border bg-card/50 backdrop-blur-sm px-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/">
-            <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-          <h1 className="font-bold text-sm tracking-wide">Media Center</h1>
-        </div>
-      </header>
+      <Navigation title="Media Center" showBackButton={true} backHref="/" showNavButtons={true} />
 
       <div className="flex-1 overflow-auto p-8">
         <div className="max-w-6xl mx-auto space-y-12">

@@ -1,8 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Play } from 'lucide-react';
-import { Link } from 'wouter';
+import { Play } from 'lucide-react';
+import { Navigation } from '@/components/Navigation';
 
 const films = [
   {
@@ -34,15 +34,7 @@ const films = [
 export default function FilmsPage() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      {/* Header */}
-      <header className="h-14 border-b border-border bg-card/50 backdrop-blur-sm px-4 flex items-center gap-3">
-        <Link href="/media">
-          <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        </Link>
-        <h1 className="font-bold text-sm tracking-wide">Films & Series</h1>
-      </header>
+      <Navigation title="Films & Series" showBackButton={true} backHref="/media" showNavButtons={true} />
 
       <div className="flex-1 overflow-auto p-8">
         <div className="max-w-6xl mx-auto space-y-8">

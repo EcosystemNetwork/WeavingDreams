@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Navigation } from '@/components/Navigation';
-import { Trophy, Flame } from 'lucide-react';
+import { Trophy, Flame, Coins } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import type { CreditAccount } from '@shared/schema';

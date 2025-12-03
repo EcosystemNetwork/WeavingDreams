@@ -3,8 +3,9 @@ import { useLocation } from 'wouter';
 import { ReactFlowProvider } from 'reactflow';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Plus, Save, BookOpen, Users, MapPin, Box } from 'lucide-react';
+import { Plus, Save, BookOpen, Users, MapPin, Box } from 'lucide-react';
 import { Link } from 'wouter';
+import { Navigation } from '@/components/Navigation';
 import FlowEditor from '@/components/editor/FlowEditor';
 import Sidebar from '@/components/editor/Sidebar';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -42,27 +43,7 @@ function NarrativeStudioContent() {
 
   return (
     <div className="h-screen w-full bg-background overflow-hidden flex flex-col">
-      {/* Header */}
-      <header className="h-14 border-b border-border bg-card/50 backdrop-blur-sm px-4 flex items-center justify-between z-10">
-        <div className="flex items-center gap-4">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-          <div className="flex flex-col">
-            <h1 className="font-bold text-sm tracking-wide">Project: NEW_{projectTitle.toUpperCase()}</h1>
-            <span className="text-[10px] text-muted-foreground font-mono">TYPE: {projectType.toUpperCase()}</span>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-[10px] font-medium text-primary">Kie AI Online</span>
-          </div>
-        </div>
-      </header>
+      <Navigation title={`Narrative Studio - ${projectTitle}`} showBackButton={true} backHref="/dashboard" showNavButtons={true} />
 
       {/* Tabs */}
       <div className="border-b border-border bg-card/30 px-4">
