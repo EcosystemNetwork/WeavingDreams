@@ -26,7 +26,12 @@ Style: Digital art, fantasy character portrait, dramatic lighting, detailed feat
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash-image",
-      contents: prompt,
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: prompt }],
+        },
+      ],
       config: {
         responseModalities: [Modality.IMAGE, Modality.TEXT],
       },
@@ -74,14 +79,40 @@ Be creative and make the character compelling and unique.`;
   try {
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: prompt,
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: prompt }],
+        },
+      ],
     });
 
-    const text = response.text || "";
+    let text = "";
+    if (response.candidates && response.candidates[0]?.content?.parts) {
+      for (const part of response.candidates[0].content.parts) {
+        if (part.text) {
+          text += part.text;
+        }
+      }
+    }
+    
+    if (!text) {
+      throw new Error("No text in AI response");
+    }
+
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     
     if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
+      const parsed = JSON.parse(jsonMatch[0]);
+      return {
+        name: parsed.name || "Unknown",
+        archetype: parsed.archetype || "Hero",
+        background: parsed.background || "A mysterious past",
+        personality: parsed.personality || "Enigmatic and reserved",
+        motivation: parsed.motivation || "Seeking purpose",
+        flaw: parsed.flaw || "Struggles with trust",
+        trait: parsed.trait || "Keen intuition",
+      };
     }
 
     throw new Error("Failed to parse character profile from AI response");

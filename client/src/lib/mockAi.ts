@@ -14,6 +14,7 @@ export interface Character {
   motivation: string;
   flaw: string;
   trait: string;
+  imageUrl?: string;
 }
 
 const MOCK_CONTINUATIONS = [
