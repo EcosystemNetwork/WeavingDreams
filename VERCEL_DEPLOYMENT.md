@@ -60,6 +60,14 @@ The build process:
 
 ## Troubleshooting
 
+For comprehensive troubleshooting of common deployment issues, see **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)**
+
+The troubleshooting guide covers:
+- **DNS Configuration Issues**: Verify and fix DNS records for custom domains
+- **v0.dev Export Issues**: Proper workflow for v0.dev to GitHub to Vercel deployments
+- **Cache and Build Artifact Issues**: Clear cache and force fresh deployments
+- **Browser and Local Environment Issues**: Browser-specific troubleshooting steps
+
 ### Download Issue Fixed
 The download issue was caused by missing Content-Type headers. This is now fixed with:
 - **Explicit Content-Type headers** in `vercel.json` for HTML, JS, and CSS files
@@ -82,4 +90,18 @@ The download issue was caused by missing Content-Type headers. This is now fixed
 - Check serverless function logs in Vercel dashboard
 - Verify environment variables are set correctly
 - Ensure database is accessible from Vercel's IP ranges
+
+### Quick Debug Commands
+
+```bash
+# Check DNS records
+dig yourdomain.com A
+dig www.yourdomain.com CNAME
+
+# Test deployment
+curl -I https://your-deployment.vercel.app
+
+# Clear cache and redeploy
+vercel --force --prod
+```
 
