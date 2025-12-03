@@ -6,8 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, Plus, Box, Trash2, Save, Copy, BookOpen } from 'lucide-react';
-import { Link } from 'wouter';
+import { Plus, Box, Trash2, Save, Copy, BookOpen } from 'lucide-react';
+import { Navigation } from '@/components/Navigation';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { toast } from 'sonner';
@@ -126,21 +126,7 @@ Significance: ${prop.significance}
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      {/* Header */}
-      <header className="h-14 border-b border-border bg-card/50 backdrop-blur-sm px-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/narrative-studio">
-            <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-          <h1 className="font-bold text-sm tracking-wide">Prop Creator</h1>
-        </div>
-        <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
-          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-[10px] font-medium text-primary">AI Online</span>
-        </div>
-      </header>
+      <Navigation title="Prop Creator" showBackButton={true} backHref="/narrative-studio" showNavButtons={false} />
 
       <div className="flex-1 overflow-hidden flex">
         {/* Main Editor */}

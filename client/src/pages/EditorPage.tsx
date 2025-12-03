@@ -4,8 +4,7 @@ import FlowEditor from '@/components/editor/FlowEditor';
 import Sidebar from '@/components/editor/Sidebar';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
-import { Link } from 'wouter';
+import { Navigation } from '@/components/Navigation';
 import { useToast } from '@/hooks/use-toast';
 
 // Wrapper component to handle Flow state updates from Sidebar

@@ -14,7 +14,9 @@ import {
   Box,
   Film,
   Loader2,
-  Flame
+  Flame,
+  Coins,
+  Clock
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
