@@ -4,19 +4,24 @@ import * as schema from "@shared/schema";
 
 // Configure WebSocket for different environments
 // In Vercel serverless and other edge environments, WebSocket is available globally
-// In Node.js environments (local development), we need the ws module
+// In Node.js environments (local development), we import the ws module
+let wsConfigured = false;
+
 if (typeof WebSocket !== 'undefined') {
   // Serverless/edge environment with native WebSocket support (Vercel, Cloudflare, etc.)
   neonConfig.webSocketConstructor = WebSocket as any;
-} else {
-  // Node.js environment - import ws module
-  try {
-    const ws = require('ws');
+  wsConfigured = true;
+}
+
+// For Node.js environments, try to import ws dynamically
+// This only runs in local development since Vercel has global WebSocket
+if (!wsConfigured) {
+  import('ws').then(({ default: ws }) => {
     neonConfig.webSocketConstructor = ws;
-  } catch (e) {
-    // If ws is not available, Neon will fall back to HTTP fetch
-    console.warn('WebSocket constructor not available, using HTTP fetch for database connection');
-  }
+  }).catch(() => {
+    // If ws is not available, Neon will use HTTP fetch mode
+    console.warn('WebSocket not available, Neon will use HTTP fetch mode');
+  });
 }
 
 if (!process.env.DATABASE_URL) {

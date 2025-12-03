@@ -1,14 +1,13 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "module": "CommonJS",
-    "target": "ES2020",
-    "lib": ["ES2020"],
-    "moduleResolution": "node",
+    "module": "ES2022",
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "noEmit": false,
-    "outDir": ".vercel/output"
+    "noEmit": false
   },
   "include": [
     "**/*.ts",
