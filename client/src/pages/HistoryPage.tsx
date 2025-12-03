@@ -1,8 +1,8 @@
-import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Users, MapPin, Box, Clock, Trash2, Loader2 } from 'lucide-react';
+import { Navigation } from '@/components/Navigation';
+import { Users, MapPin, Box, Clock, Trash2, Loader2 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { toast } from 'sonner';
@@ -140,24 +140,7 @@ export default function HistoryPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      {/* Header */}
-      <header className="h-14 border-b border-border bg-card/50 backdrop-blur-sm px-4 flex items-center justify-between">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-          <div className="flex items-center gap-2">
-            <Clock className="w-4 sm:w-5 h-4 sm:h-5 text-primary" />
-            <h1 className="font-bold text-xs sm:text-sm tracking-wide">Creation History</h1>
-          </div>
-        </div>
-        <div className="text-xs text-muted-foreground">
-          <span className="hidden sm:inline">{allCreations.length} Total Creations</span>
-          <span className="sm:hidden">{allCreations.length}</span>
-        </div>
-      </header>
+      <Navigation title="Creation History" showBackButton={true} backHref="/dashboard" showNavButtons={true} />
 
       {/* Content */}
       <div className="flex-1 overflow-auto">

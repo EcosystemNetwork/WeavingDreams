@@ -1,8 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Trophy, Flame, Coins } from 'lucide-react';
-import { Link } from 'wouter';
+import { Navigation } from '@/components/Navigation';
+import { Trophy, Flame } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import type { CreditAccount } from '@shared/schema';
@@ -25,21 +25,7 @@ export default function LeaderboardPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      {/* Header */}
-      <header className="h-14 border-b border-border bg-card/50 backdrop-blur-sm px-4 flex items-center justify-between">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-          <h1 className="font-bold text-xs sm:text-sm tracking-wide flex items-center gap-1 sm:gap-2" data-testid="heading-leaderboard">
-            <Trophy className="w-4 sm:w-5 h-4 sm:h-5 text-yellow-500" />
-            <span className="hidden sm:inline">Global Leaderboard</span>
-            <span className="sm:hidden">Leaderboard</span>
-          </h1>
-        </div>
-      </header>
+      <Navigation title="Global Leaderboard" showBackButton={true} backHref="/dashboard" showNavButtons={true} />
 
       <div className="flex-1 flex flex-col p-4 sm:p-8">
         <div className="max-w-4xl mx-auto w-full space-y-4">

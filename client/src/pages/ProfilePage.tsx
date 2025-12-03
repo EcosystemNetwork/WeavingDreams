@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Edit2, Save, X, Loader2, Trophy } from 'lucide-react';
+import { Edit2, Save, X, Loader2, Trophy } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Navigation } from '@/components/Navigation';
 import { toast } from 'sonner';
 
 interface UserBadge {
@@ -59,17 +59,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      {/* Header */}
-      <header className="h-14 border-b border-border bg-card/50 backdrop-blur-sm px-4 flex items-center justify-between">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-          <h1 className="font-bold text-xs sm:text-sm tracking-wide">My Profile</h1>
-        </div>
-      </header>
+      <Navigation title="My Profile" showBackButton={true} backHref="/dashboard" showNavButtons={true} />
 
       <div className="flex-1 overflow-auto p-4 sm:p-8">
         <div className="max-w-2xl mx-auto space-y-6">

@@ -1,16 +1,13 @@
-import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Navigation } from '@/components/Navigation';
 import { 
-  ArrowLeft, 
-  Coins, 
   Gift, 
   Calendar, 
   CheckCircle2, 
-  Clock, 
   Sparkles,
   Users,
   MapPin,
@@ -108,29 +105,7 @@ export default function QuestsPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      {/* Header */}
-      <header className="h-14 border-b border-border bg-card/50 backdrop-blur-sm px-4 flex items-center justify-between">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-          <div className="flex items-center gap-2">
-            <Gift className="w-4 sm:w-5 h-4 sm:h-5 text-primary" />
-            <h1 className="font-bold text-xs sm:text-sm tracking-wide">Daily Quests</h1>
-          </div>
-        </div>
-        
-        {/* Credit Balance */}
-        <div className="flex items-center gap-2 px-2 sm:px-4 py-1.5 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 rounded-full border border-amber-500/30 flex-shrink-0">
-          <Coins className="w-3 sm:w-4 h-3 sm:h-4 text-amber-400" />
-          <span className="font-bold text-amber-300 text-xs sm:text-sm">
-            {loadingCredits ? '...' : creditAccount?.balance ?? 0}
-          </span>
-          <span className="hidden sm:inline text-xs text-amber-400/70">credits</span>
-        </div>
-      </header>
+      <Navigation title="Daily Quests" showBackButton={true} backHref="/dashboard" showNavButtons={true} />
 
       <div className="flex-1 overflow-auto">
         <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">

@@ -4,8 +4,8 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, Sparkles, RotateCw, Copy, Save, Coins } from 'lucide-react';
-import { Link } from 'wouter';
+import { Sparkles, RotateCw, Copy, Save } from 'lucide-react';
+import { Navigation } from '@/components/Navigation';
 import { mockKieAi, Character } from '@/lib/mockAi';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
@@ -130,31 +130,7 @@ Trait: ${character.trait}
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      {/* Header */}
-      <header className="h-14 border-b border-border bg-card/50 backdrop-blur-sm px-4 flex items-center justify-between overflow-x-auto">
-        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-          <Link href="/dashboard">
-            <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-          <h1 className="font-bold text-xs sm:text-sm tracking-wide flex-shrink-0">Character Gen</h1>
-        </div>
-        <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
-          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
-            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-[10px] font-medium text-primary">AI Online</span>
-          </div>
-          <Link href="/quests">
-            <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 rounded-full border border-amber-500/30 hover:border-amber-500/50 transition-colors cursor-pointer flex-shrink-0">
-              <Coins className="w-3 sm:w-4 h-3 sm:h-4 text-amber-400" />
-              <span className="font-bold text-amber-300 text-xs sm:text-sm">
-                {creditAccount?.balance ?? '...'}
-              </span>
-            </div>
-          </Link>
-        </div>
-      </header>
+      <Navigation title="Character Generator" showBackButton={true} backHref="/dashboard" showNavButtons={true} />
 
       <div className="flex-1 overflow-hidden flex">
         {/* Main Panel */}

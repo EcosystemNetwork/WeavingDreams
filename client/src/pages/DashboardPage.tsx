@@ -1,11 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Film, Gamepad2, Plus, BookOpen, Clock, LogOut, User, Coins, Gift, Flame, Trophy } from 'lucide-react';
+import { Film, Gamepad2, Plus, BookOpen } from 'lucide-react';
 import { Link } from 'wouter';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Navigation } from '@/components/Navigation';
 import type { CreditAccount } from '@shared/schema';
 
 export default function DashboardPage() {
@@ -17,74 +17,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      {/* Header */}
-      <header className="h-14 border-b border-border bg-card/50 backdrop-blur-sm px-4 flex items-center justify-between overflow-x-auto">
-        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-          <Link href="/">
-            <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-          <h1 className="font-bold text-xs sm:text-sm tracking-wide flex-shrink-0">Dashboard</h1>
-        </div>
-        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-          <Link href="/leaderboard">
-            <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary hidden sm:inline-flex" data-testid="button-leaderboard">
-              <Trophy className="w-4 h-4" />
-            </Button>
-          </Link>
-          <Link href="/quests">
-            <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary hidden sm:inline-flex" data-testid="button-quests">
-              <Gift className="w-4 h-4" />
-            </Button>
-          </Link>
-          <Link href="/history">
-            <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary hidden sm:inline-flex" data-testid="button-history">
-              <Clock className="w-4 h-4" />
-            </Button>
-          </Link>
-          <Link href="/wiki">
-            <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary hidden sm:inline-flex" data-testid="button-wiki">
-              <BookOpen className="w-4 h-4" />
-            </Button>
-          </Link>
-          <Link href="/profile">
-            <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary hidden sm:inline-flex" data-testid="button-profile">
-              <User className="w-4 h-4" />
-            </Button>
-          </Link>
-          
-          {/* Credit Balance - Mobile optimized */}
-          <Link href="/quests">
-            <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 bg-gradient-to-r from-amber-500/20 to-yellow-500/20 rounded-full border border-amber-500/30 hover:border-amber-500/50 transition-colors cursor-pointer flex-shrink-0" data-testid="display-credits">
-              <Coins className="w-3 sm:w-4 h-3 sm:h-4 text-amber-400" />
-              <span className="font-bold text-amber-300 text-xs sm:text-sm">
-                {creditAccount?.balance ?? '...'}
-              </span>
-              {creditAccount?.loginStreak && creditAccount.loginStreak > 1 && (
-                <div className="hidden sm:flex items-center gap-1 text-orange-400">
-                  <Flame className="w-3 h-3" />
-                  <span className="text-xs">{creditAccount.loginStreak}</span>
-                </div>
-              )}
-            </div>
-          </Link>
-          
-          <div className="flex items-center gap-2 ml-2 pl-2 sm:pl-4 border-l border-border flex-shrink-0">
-            <Avatar className="w-8 h-8">
-              <AvatarImage src={user?.profileImageUrl || ''} alt={user?.firstName || 'User'} />
-              <AvatarFallback className="bg-primary/20 text-primary text-xs">
-                {user?.firstName?.[0] || user?.email?.[0] || <User className="w-4 h-4" />}
-              </AvatarFallback>
-            </Avatar>
-            <a href="/api/logout" data-testid="link-logout">
-              <Button variant="ghost" size="sm" className="hover:bg-destructive/10 hover:text-destructive">
-                <LogOut className="w-4 h-4" />
-              </Button>
-            </a>
-          </div>
-        </div>
-      </header>
+      <Navigation title="Dashboard" showBackButton={false} showNavButtons={true} />
 
       <div className="flex-1 overflow-auto p-4 sm:p-8">
         <div className="max-w-6xl mx-auto space-y-8 sm:space-y-12">
