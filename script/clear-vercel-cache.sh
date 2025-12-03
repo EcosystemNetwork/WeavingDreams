@@ -109,8 +109,13 @@ main() {
     
     if [ -f "package.json" ]; then
         print_info "Running npm install..."
-        npm install
-        print_success "Dependencies installed"
+        if npm install; then
+            print_success "Dependencies installed"
+        else
+            print_error "Failed to install dependencies!"
+            print_error "Check your package.json for errors or network connectivity"
+            exit 1
+        fi
     else
         print_error "No package.json found!"
         exit 1
@@ -124,8 +129,14 @@ main() {
     
     if grep -q '"build"' package.json; then
         print_info "Running npm run build..."
-        npm run build
-        print_success "Build completed"
+        if npm run build; then
+            print_success "Build completed"
+        else
+            print_error "Build failed!"
+            print_error "Check build logs above for specific errors"
+            print_info "Common issues: missing environment variables, TypeScript errors"
+            exit 1
+        fi
     else
         print_warning "No build script found in package.json"
     fi

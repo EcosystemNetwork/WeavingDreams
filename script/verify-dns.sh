@@ -70,10 +70,21 @@ check_a_record() {
         print_success "A record found: $result"
         
         # Check if it points to Vercel's IP
-        if echo "$result" | grep -q "76.76.21.21\|76.76.21.22\|76.76.21.23\|76.76.21.24"; then
+        # Note: Vercel IP addresses may change. Verify current IPs at: https://vercel.com/docs/concepts/edge-network/overview
+        VERCEL_IPS="76.76.21.21 76.76.21.22 76.76.21.23 76.76.21.24"
+        IP_MATCHES=false
+        for vercel_ip in $VERCEL_IPS; do
+            if echo "$result" | grep -q "$vercel_ip"; then
+                IP_MATCHES=true
+                break
+            fi
+        done
+        
+        if [ "$IP_MATCHES" = true ]; then
             print_success "IP address points to Vercel"
         else
             print_warning "IP address may not point to Vercel. Verify in your Vercel dashboard."
+            print_info "Expected Vercel IPs: $VERCEL_IPS"
         fi
     fi
 }
@@ -105,19 +116,32 @@ check_http_response() {
     local url=$1
     print_info "Checking HTTP response for $url..."
     
-    local status_code=$(curl -s -o /dev/null -w "%{http_code}" -L "$url" 2>/dev/null)
+    # Add timeout and connection failure handling
+    local status_code=$(curl -s -o /dev/null -w "%{http_code}" -L --connect-timeout 10 --max-time 30 "$url" 2>&1)
+    local curl_exit_code=$?
+    
+    if [ $curl_exit_code -ne 0 ]; then
+        print_error "Failed to connect to $url (curl exit code: $curl_exit_code)"
+        print_info "This could be due to network issues, DNS not resolving, or site being down"
+        return 1
+    fi
     
     if [ "$status_code" = "200" ]; then
         print_success "HTTP 200 OK - Site is accessible"
     elif [ "$status_code" = "301" ] || [ "$status_code" = "302" ]; then
         print_warning "HTTP $status_code - Redirect detected"
+    elif [ -z "$status_code" ]; then
+        print_error "No HTTP status code received - Connection may have failed"
+        return 1
     else
         print_error "HTTP $status_code - Site may not be accessible"
     fi
     
     # Check Content-Type header
-    local content_type=$(curl -s -I -L "$url" 2>/dev/null | grep -i "content-type" | head -1)
-    if echo "$content_type" | grep -q "text/html"; then
+    local content_type=$(curl -s -I -L --connect-timeout 10 --max-time 30 "$url" 2>/dev/null | grep -i "content-type" | head -1)
+    if [ -z "$content_type" ]; then
+        print_warning "Could not retrieve Content-Type header"
+    elif echo "$content_type" | grep -q "text/html"; then
         print_success "Content-Type is text/html - Correct MIME type"
     else
         print_error "Content-Type is not text/html: $content_type"
@@ -131,15 +155,26 @@ check_ssl() {
     print_info "Checking SSL certificate for $domain..."
     
     if command_exists openssl; then
-        local ssl_info=$(echo | openssl s_client -servername "$domain" -connect "$domain":443 2>/dev/null | openssl x509 -noout -dates 2>/dev/null)
+        # First test if we can connect
+        local ssl_connect=$(echo | timeout 10 openssl s_client -servername "$domain" -connect "$domain":443 2>&1)
+        local connect_exit_code=$?
         
-        if [ -n "$ssl_info" ]; then
+        if [ $connect_exit_code -ne 0 ]; then
+            print_error "Unable to establish SSL connection (timeout or connection refused)"
+            return 1
+        fi
+        
+        # Extract and verify certificate
+        local ssl_info=$(echo "$ssl_connect" | openssl x509 -noout -dates 2>&1)
+        local cert_exit_code=$?
+        
+        if [ $cert_exit_code -eq 0 ] && [ -n "$ssl_info" ]; then
             print_success "SSL certificate is valid"
             echo "$ssl_info" | while read line; do
                 print_info "  $line"
             done
         else
-            print_error "Unable to verify SSL certificate"
+            print_error "Unable to parse SSL certificate information"
         fi
     else
         print_warning "openssl not found, skipping SSL check"
